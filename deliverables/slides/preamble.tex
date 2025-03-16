@@ -1,0 +1,75 @@
+%\usetheme{Berkeley}
+% \usetheme{PaloAlto}
+\usetheme{moloch}
+\usecolortheme{albatross}
+
+\logo{
+    \includegraphics[scale=.1]{logo-gmu-ece.png }
+}
+
+\titlegraphic{
+    \includegraphics[scale=0.2]{./logo-gmu-ece.png}
+}
+
+\usepackage{graphicx}
+\graphicspath{ {../figures/} }
+\usepackage{float}
+\usepackage{subcaption}
+
+\input{color.tex}
+
+%\usepackage{natbib}
+\usepackage{bibentry}
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule
+\usepackage{multirow}
+
+
+%page numbers in bottom right
+\setbeamertemplate{sidebar right}{}
+\setbeamertemplate{footline}{%
+\hfill\usebeamertemplate***{navigation symbols}
+\hspace{1cm}\insertframenumber{}/\inserttotalframenumber}
+
+% math
+\usepackage{amsmath,amsfonts,amssymb,mathrsfs,mathtools}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+% Swap the definition of \abs* and \norm*, so that \abs
+% and \norm resizes the size of the brackets, and the 
+% starred version does not.
+\makeatletter
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+%
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
+
+% references for equations
+\makeatletter
+\def\tagform@#1{\maketag@@@{\bfseries(\ignorespaces#1\unskip\@@italiccorr)}}
+\renewcommand{\eqref}[1]{\textup{{\normalfont(\ref{#1}}\normalfont)}}
+\makeatother
+
+
+% not using this, but can be nice
+\usepackage{shadow}     % this creates a shaded box; see \shabox below
+
+
+\usepackage{outlines}
+%\usepackage[margin=1.0in]{geometry}
+\setbeamersize{text margin left=15mm,text margin right=15mm} 
+
+\input{macros}
+
+% \usepackage{mdframed}
+% % \mdfdefinestyle{tablestyle}{linewidth=2pt}
+% % \newmdframedend{markedtable}
+% \surroundwithmdframed[
+% linecolor=red,
+% backgroundcolor=black,
+% font={\sffamily},fontcolor=red]
+% ]{table}
+% % \mdfdefinestyle{exampledefault}{linewidth=2pt}
+% % \newtheorem{my_example}{EXAMPLE}[chapter]

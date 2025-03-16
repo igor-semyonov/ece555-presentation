@@ -1,0 +1,19 @@
+\usepackage{xparse}
+
+\usepackage{tabto}
+\NumTabs{6}
+
+\newcommand{\eq}[2]{
+    \begin{equation}\label{#1}
+        #2
+    \end{equation}
+}
+
+\usepackage{xspace}
+\newcommand{\latex}{\LaTeX\xspace}
+\newcommand{\tex}{\TeX\xspace}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rn}[1][n]{\mathbb{R}^#1}
+\NewDocumentCommand{\Rnp}{ O{n} O{p} }{\mathbb{R}^#1_#2}
+

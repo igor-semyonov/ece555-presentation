@@ -1,0 +1,28 @@
+\usepackage{xparse}
+
+\usepackage{tabto}
+\NumTabs{6}
+
+\newcommand{\slide}[2][]{
+    \begin{frame}
+        \frametitle{
+            #1
+        }
+
+        #2
+    \end{frame}
+}
+
+\newcommand{\eq}[2]{
+    \begin{equation}\label{#1}
+        #2
+    \end{equation}
+}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rn}[1][n]{\mathbb{R}^#1}
+\NewDocumentCommand{\Rnp}{ O{n} O{p} }{\mathbb{R}^#1_#2}
+
+
+\renewcommand{\listfigurename}{Figures}
+

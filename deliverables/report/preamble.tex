@@ -1,0 +1,100 @@
+\usepackage[T1]{fontenc}
+\usepackage{authblk}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{multirow}
+
+\usepackage{fancyhdr}
+
+\usepackage{amsmath,amsfonts,amssymb,mathrsfs,mathtools}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+% Swap the definition of \abs* and \norm*, so that \abs
+% and \norm resizes the size of the brackets, and the 
+% starred version does not.
+\makeatletter
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+%
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
+%%%%%%%%%%%%%%%%%%%
+
+% references for equations
+\makeatletter
+\def\tagform@#1{\maketag@@@{\bfseries(\ignorespaces#1\unskip\@@italiccorr)}}
+\renewcommand{\eqref}[1]{Eq. \textup{{\normalfont(\ref{#1}}\normalfont)}}
+\makeatother
+\newcommand{\figref}[1]{Figure \ref{#1}}
+\newcommand{\lstref}[1]{Listing \ref{#1}}
+\newcommand{\tabref}[1]{Table \ref{#1}}
+
+\usepackage{listings, listings-rust}
+\usepackage[framemethod=TikZ]{mdframed}
+\lstset
+{
+	language=C,
+	basicstyle=\footnotesize,
+	numbers=left,
+	numberstyle=\tiny,
+	stepnumber=1,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+	xleftmargin=-8pt,
+	frame=T,
+}
+\newcommand{\codefileNoFigure}[3]{
+	\mdframed[roundcorner=5pt, backgroundcolor=blue!30]
+	% \lstinputlisting[caption=\texttt{#1} {#2}, label=#3]{#1}
+	\lstinputlisting[caption={#2}, label=#3]{#1}
+	\endmdframed
+}
+\newcommand{\codefileRustNoFigure}[3]{
+	\mdframed[roundcorner=5pt, backgroundcolor=blue!30]
+	\lstinputlisting[
+		language=Rust,
+		caption={#2},
+		label=#3
+	]{#1}
+	\endmdframed
+}
+\newcommand{\codefile}[3]{
+	\begin{figure}[H]
+		\codefileNoFigure{#1}{#2}{#3}
+	\end{figure}
+}
+
+\usepackage{enumitem}
+\newlist{problems}{enumerate}{2}
+\setlist[problems]{
+	label={Problem \arabic*.},
+	ref={\arabic*},
+	wide,
+	itemindent=0pt,
+	listparindent=0pt,
+}
+\newlist{subproblems}{enumerate}{2}
+\setlist[subproblems]{
+	label={(\alph*)},
+	ref=\alph*
+	wide,
+	listparindent=0pt,
+	itemindent=0pt,
+}
+\usepackage{scalerel}
+\setcounter{MaxMatrixCols}{20}
+\newcommand{\longdiv}{\smash{\mkern-0.43mu\vstretch{1.31}{\hstretch{.7}{)}}\mkern-5.2mu\vstretch{1.31}{\hstretch{.7}{)}}}}
+
+% \input{./macros}
+\def \Hinv {H_\text{inv}}
+\def \hinv {h_\text{inv}}
