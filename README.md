@@ -34,6 +34,9 @@ For me, this is
 
 # Ideas for coding portion
 
+These are roughly in order of difficulty.
+
+- Mandelbrot set, Julia set, or Newton fractals
 - Monte Carlo Pi estimation: Generate points in the square of size 2x2 centered at the origin. The proportion inside the unit circle will give us an estimate of pi.
 - Image convolution. A bit boring, but also should be relatively easy to do. We could also expand this to a small-ish CNN, maybe with backprop too.
 
