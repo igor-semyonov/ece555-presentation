@@ -8,7 +8,7 @@ I was running a newer version of CUDA than expected and they updated the way the
 
 The main thing I had to do is compile LLVM and set and enviroment variable pointing to that LLVM.
 
-1. Go to the (release page)[https://releases.llvm.org/download.html#7.0.1] for LLVM 7.0.1. It has to be LLVM 7, as that is the version nvvm supports. I don't know if 7.1 works. I tested 7.0.1.
+1. Go to the [release page](https://releases.llvm.org/download.html#7.0.1) for LLVM 7.0.1. It has to be LLVM 7, as that is the version nvvm supports. I don't know if 7.1 works. I tested 7.0.1.
 2. I used the first link to download the source code.
 3. Extract it using `tar -xvf <path-to-tarball>`
 4. Create a build directory, such as `llvm-7.0.1.build` and `cd` into it.
@@ -22,7 +22,7 @@ Edit the arguments accordingly.
 
 6. I compiled using `make -j24 && make install`, but you can also use cmake by running `cmake --build . && cmake --build . --target install`.
 
-(LLVM build instructions)[https://llvm.org/docs/CMake.html]
+[LLVM build instructions](https://llvm.org/docs/CMake.html)
 
 7. Now change to the llvm install directory and run `readlink -f bin/llvm-config`
 
