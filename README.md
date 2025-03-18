@@ -31,3 +31,9 @@ This will print the full path to the `llvm-config` binary. Copy this for the nex
 8. In the shell where you plan to compile a Rust_CUDA project, run `export LLVM_CONFIG=<path-to-llvm-config-binary>`
 For me, this is 
 `export LLVM_CONFIG=/home/kdcadet/code/llvm-7.0.1/bin/llvm-config`
+
+# Ideas for coding portion
+
+- Monte Carlo Pi estimation: Generate points in the square of size 2x2 centered at the origin. The proportion inside the unit circle will give us an estimate of pi.
+- Image convolution. A bit boring, but also should be relatively easy to do. We could also expand this to a small-ish CNN, maybe with backprop too.
+
