@@ -661,6 +661,7 @@ dependencies = [
 name = "mandelbrot"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "byteorder",
  "cc",
  "cuda_builder",
@@ -676,6 +677,7 @@ dependencies = [
  "regex",
  "regex-syntax 0.6.28",
  "thread_local",
+ "vek",
 ]
 
 [[package]]
@@ -1621,9 +1623,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "86dce3b89992dbfee9b6f46d8a98a4a5ecf79f93f3b077fad3cc2759ebe92214"
 dependencies = [
  "approx",
+ "bytemuck",
+ "mint",
  "num-integer",
  "num-traits",
  "rustc_version",
+ "serde",
 ]
 
 [[package]]
