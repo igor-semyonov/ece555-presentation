@@ -12,7 +12,7 @@ use vek::Vec2;
 static PTX: &str =
     include_str!("../../../resources/mandelbrot.ptx");
 
-const NROWS: usize = 1 << 14;
+const NROWS: usize = 1 << 13;
 const NCOLS: usize = NROWS >> 1;
 const THREADS_DIM: usize = 8;
 
@@ -25,6 +25,17 @@ fn main() -> Result<()> {
     let x_max = 1.0;
     let y_min = -1.0;
     let y_max = 1.0;
+
+    let x_min = -0.5;
+    let x_max = -0.4;
+    let y_min = 0.55;
+    let y_max = 0.6;
+
+    // let x_min = -0.465;
+    // let x_max = -0.455;
+    // let y_min = 0.577;
+    // let y_max = 0.587;
+
     let x_range = x_max - x_min;
     let y_range = y_max - y_min;
 
@@ -167,7 +178,7 @@ fn main() -> Result<()> {
         out,
     )?;
 
-    let out = nd::concatenate![nd::Axis(0), out, out_cpu];
+    // let out = nd::concatenate![nd::Axis(0), out, out_cpu];
 
     let image = array_to_image(
         out.t()
