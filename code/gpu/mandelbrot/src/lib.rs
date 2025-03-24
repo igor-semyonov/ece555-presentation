@@ -8,8 +8,8 @@ use cuda_std::prelude::*;
 pub unsafe fn mandelbrot(
     n_cols: usize,
     zn_limit: u32,
-    re: &[f64],
-    im: &[f64],
+    re: &[f32],
+    im: &[f32],
     out: *mut u8,
 ) {
     let idx = thread::index_2d();

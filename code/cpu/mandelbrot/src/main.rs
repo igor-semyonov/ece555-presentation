@@ -5,15 +5,16 @@ use cust::prelude::*;
 use image::GrayImage;
 use ndarray as nd;
 use ndarray::parallel::prelude::*;
-use num::complex::Complex64 as c64;
-use vek::Vec2;
+use num::complex::Complex32 as c32;
 use std::time::Instant;
+use vek::Vec2;
 
 static PTX: &str =
     include_str!("../../../resources/mandelbrot.ptx");
 
-const NROWS: usize = 2048;
-const NCOLS: usize = 1024;
+const NROWS: usize = 1 << 14;
+const NCOLS: usize = NROWS >> 1;
+const THREADS_DIM: usize = 8;
 
 fn main() -> Result<()> {
     let mut elapsed_times =
@@ -31,12 +32,12 @@ fn main() -> Result<()> {
         (
             NROWS, NCOLS,
         ),
-        |idx| c64 {
+        |idx| c32 {
             re: x_range
-                * (idx.0 as f64 / ((NROWS - 1) as f64))
+                * (idx.0 as f32 / ((NROWS - 1) as f32))
                 + x_min,
             im: y_range
-                * (idx.1 as f64 / ((NCOLS - 1) as f64))
+                * (idx.1 as f32 / ((NCOLS - 1) as f32))
                 + y_min,
         },
     );
@@ -111,11 +112,24 @@ fn main() -> Result<()> {
         .as_slice()
         .as_dbuf()?;
 
-    let threads = Vec2::broadcast(16usize);
+    let threads = Vec2::broadcast(THREADS_DIM);
     let block_size: BlockSize = threads.into();
     let grid_size: GridSize =
         (Vec2::from_slice(&[NROWS, NCOLS]) / threads)
             .into();
+
+    // the following is slightly slower, 7x cpu instead of 8x vs the square blocks aobove
+    let block_size = BlockSize {
+        x: 1024,
+        y: 1,
+        z: 1,
+    };
+    let grid_size = GridSize {
+        x: NROWS as u32 >> 10,
+        y: NCOLS as u32,
+        z: 1,
+    };
+
     println!(
         "{:?}\n{:?}\n",
         block_size, grid_size
@@ -174,9 +188,16 @@ fn main() -> Result<()> {
                 );
             },
         );
-    let cpu_time = elapsed_times.get("cpu-rayon").unwrap();
-    let gpu_time = elapsed_times.get("gpu").unwrap();
-    println!("\nGPU execution time was {:.2} times faster than CPU using rayon", cpu_time / gpu_time);
+    let cpu_time = elapsed_times
+        .get("cpu-rayon")
+        .unwrap();
+    let gpu_time = elapsed_times
+        .get("gpu")
+        .unwrap();
+    println!(
+        "\nGPU execution time was {:.2} times faster than CPU using rayon",
+        cpu_time / gpu_time
+    );
 
     Ok(())
 }
