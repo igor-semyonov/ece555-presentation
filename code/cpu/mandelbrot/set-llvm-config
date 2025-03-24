@@ -1,0 +1,1 @@
+export LLVM_CONFIG=~/code/llvm-7.0.1/bin/llvm-config
