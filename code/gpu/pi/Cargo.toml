@@ -1,0 +1,11 @@
+[package]
+name = "pi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cuda_std = { version = "0.2", path = "/home/kdcadet/code/Rust-CUDA/crates/cuda_std" }
+gpu_rand = { version = "0.1", path = "/home/kdcadet/code/Rust-CUDA/crates/gpu_rand" }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
