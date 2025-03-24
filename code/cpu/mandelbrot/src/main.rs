@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use anyhow::{Context, Result, anyhow};
 use cust::function::{BlockSize, GridSize};
 use cust::prelude::*;
@@ -6,15 +7,19 @@ use ndarray as nd;
 use ndarray::parallel::prelude::*;
 use num::complex::Complex64 as c64;
 use vek::Vec2;
+use std::time::Instant;
 
 static PTX: &str =
     include_str!("../../../resources/mandelbrot.ptx");
 
-const NROWS: usize = 32;
-const NCOLS: usize = 32;
+const NROWS: usize = 2048;
+const NCOLS: usize = 1024;
 
 fn main() -> Result<()> {
-    let zn_limit = 100;
+    let mut elapsed_times =
+        std::collections::HashMap::new();
+
+    let zn_limit: u32 = 100;
     let x_min = -2.0;
     let x_max = 1.0;
     let y_min = -1.0;
@@ -36,28 +41,36 @@ fn main() -> Result<()> {
         },
     );
 
-    let mut mandel: nd::Array2<u8> = nd::Array2::zeros((
+    let mut out = vec![0u8; NROWS * NCOLS];
+    let mut out_cpu: nd::Array2<u8> = nd::Array2::zeros((
         NROWS, NCOLS,
     ));
-    let mandel = vec![0usize; NROWS * NCOLS];
 
-    // nd::Zip::from(&points)
-    //     .and(&mut mandel)
-    //     .into_par_iter()
-    //     .with_min_len(100)
-    //     .for_each(
-    //         |(c, m)| {
-    //             let mut z = *c;
-    //             for _ in 0..zn_limit {
-    //                 z = z * z + c;
-    //                 if z.norm() > 2.0 {
-    //                     *m = 0;
-    //                     return;
-    //                 }
-    //             }
-    //             *m = 255;
-    //         },
-    //     );
+    let start_execution = Instant::now();
+    nd::Zip::from(&points)
+        .and(&mut out_cpu)
+        .into_par_iter()
+        .with_min_len(100)
+        .for_each(
+            |(c, m)| {
+                let mut z = *c;
+                for _ in 0..zn_limit {
+                    z = z * z + c;
+                    if z.re * z.re + z.im + z.im > 4.0 {
+                        *m = 0;
+                        return;
+                    }
+                }
+                *m = 255;
+            },
+        );
+    elapsed_times.insert(
+        "cpu-rayon".to_string(),
+        start_execution
+            .elapsed()
+            .as_micros() as f64
+            / 1e3,
+    );
 
     // initialize CUDA, this will pick the first available
     // device and will make a CUDA context from it.
@@ -81,9 +94,21 @@ fn main() -> Result<()> {
         None,
     )?;
 
-    let mandel_gpu = mandel
+    let points_re_gpu = points
+        .iter()
+        .map(|c| c.re)
+        .collect::<Vec<_>>()
         .as_slice()
-        // .unwrap()
+        .as_dbuf()?;
+    let points_im_gpu = points
+        .iter()
+        .map(|c| c.im)
+        .collect::<Vec<_>>()
+        .as_slice()
+        .as_dbuf()?;
+
+    let out_gpu = out
+        .as_slice()
         .as_dbuf()?;
 
     let threads = Vec2::broadcast(16usize);
@@ -96,28 +121,62 @@ fn main() -> Result<()> {
         block_size, grid_size
     );
 
-    println!("{}", mandel_gpu.len());
-
+    let start_execution = Instant::now();
     unsafe {
         launch!(
             module.mandelbrot<<<grid_size, block_size, 0, stream>>>(
-                mandel_gpu.as_device_ptr()
-                // 0u8
+                NCOLS,
+                zn_limit,
+                points_re_gpu.as_device_ptr(),
+                points_re_gpu.len(),
+                points_im_gpu.as_device_ptr(),
+                points_im_gpu.len(),
+                out_gpu.as_device_ptr(),
             )
         )?;
     }
 
     stream.synchronize()?;
+    elapsed_times.insert(
+        "gpu".to_string(),
+        start_execution
+            .elapsed()
+            .as_micros() as f64
+            / 1e3,
+    );
 
-    // let image = array_to_image(
-    //     mandel
-    //         .t()
-    //         .as_standard_layout()
-    //         .to_owned(),
-    // );
-    // image
-    //     .save("out.png")
-    //     .unwrap();
+    out_gpu.copy_to(&mut out)?;
+    let out = nd::Array2::from_shape_vec(
+        (
+            NROWS, NCOLS,
+        ),
+        out,
+    )?;
+
+    let out = nd::concatenate![nd::Axis(0), out, out_cpu];
+
+    let image = array_to_image(
+        out.t()
+            .as_standard_layout()
+            .to_owned(),
+    );
+    image
+        .save("out.png")
+        .unwrap();
+
+    elapsed_times
+        .iter()
+        .for_each(
+            |(k, v)| {
+                println!(
+                    "{:20.} took {:8.2}",
+                    k, v
+                );
+            },
+        );
+    let cpu_time = elapsed_times.get("cpu-rayon").unwrap();
+    let gpu_time = elapsed_times.get("gpu").unwrap();
+    println!("\nGPU execution time was {:.2} times faster than CPU using rayon", cpu_time / gpu_time);
 
     Ok(())
 }
