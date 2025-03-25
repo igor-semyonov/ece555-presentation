@@ -12,50 +12,60 @@ use vek::Vec2;
 static PTX: &str =
     include_str!("../../../resources/mandelbrot.ptx");
 
-const NROWS: usize = 1 << 13;
-const NCOLS: usize = NROWS >> 1;
-const THREADS_DIM: usize = 8;
+const N_RE: usize = 1 << 13;
+const N_IM: usize = N_RE >> 1;
+const THREADS_DIM: usize = 16;
 
 fn main() -> Result<()> {
     let mut elapsed_times =
         std::collections::HashMap::new();
 
     let zn_limit: u32 = 100;
-    let x_min = -2.0;
-    let x_max = 1.0;
-    let y_min = -1.0;
-    let y_max = 1.0;
 
-    let x_min = -0.5;
-    let x_max = -0.4;
-    let y_min = 0.55;
-    let y_max = 0.6;
+    let re_min = -2.0;
+    let re_max = 1.0;
+    let im_min = -1.0;
+    let im_max = 1.0;
+
+    // let x_min = -0.5;
+    // let x_max = -0.4;
+    // let y_min = 0.55;
+    // let y_max = 0.6;
 
     // let x_min = -0.465;
     // let x_max = -0.455;
     // let y_min = 0.577;
     // let y_max = 0.587;
 
-    let x_range = x_max - x_min;
-    let y_range = y_max - y_min;
+    let re_range = re_max - re_min;
+    let im_range = im_max - im_min;
 
+    let start_execution = Instant::now();
     let points = nd::Array2::from_shape_fn(
         (
-            NROWS, NCOLS,
+            N_RE, N_IM,
         ),
         |idx| c32 {
-            re: x_range
-                * (idx.0 as f32 / ((NROWS - 1) as f32))
-                + x_min,
-            im: y_range
-                * (idx.1 as f32 / ((NCOLS - 1) as f32))
-                + y_min,
+            re: re_range
+                * (idx.0 as f32 / ((N_RE - 1) as f32))
+                + re_min,
+            im: im_range
+                * (idx.1 as f32 / ((N_IM - 1) as f32))
+                + im_min,
         },
     );
+    elapsed_times.insert(
+        "cpu-create-points".to_string(),
+        start_execution
+            .elapsed()
+            .as_micros() as f64
+            / 1e3,
+    );
 
-    let mut out = vec![0u8; NROWS * NCOLS];
+    let mut out = vec![0u8; N_RE * N_IM];
+    let mut out_local_points = vec![0u8; N_RE * N_IM];
     let mut out_cpu: nd::Array2<u8> = nd::Array2::zeros((
-        NROWS, NCOLS,
+        N_RE, N_IM,
     ));
 
     let start_execution = Instant::now();
@@ -122,22 +132,27 @@ fn main() -> Result<()> {
     let out_gpu = out
         .as_slice()
         .as_dbuf()?;
+    let out_gpu_local_points = out
+        .as_slice()
+        .as_dbuf()?;
+    // let out_gpu_local_points: DeviceBuffer<u8> =
+    //     DeviceBuffer::zeroed(N_RE * N_IM)?;
 
     let threads = Vec2::broadcast(THREADS_DIM);
     let block_size: BlockSize = threads.into();
     let grid_size: GridSize =
-        (Vec2::from_slice(&[NROWS, NCOLS]) / threads)
-            .into();
+        (Vec2::from_slice(&[N_IM, N_RE]) / threads).into();
 
-    // the following is slightly slower, 7x cpu instead of 8x vs the square blocks aobove
+    // the following is slightly slower, 7x cpu instead of
+    // 8x vs the square blocks aobove
     let block_size = BlockSize {
         x: 1024,
         y: 1,
         z: 1,
     };
     let grid_size = GridSize {
-        x: NROWS as u32 >> 10,
-        y: NCOLS as u32,
+        x: N_IM as u32 >> 10,
+        y: N_RE as u32,
         z: 1,
     };
 
@@ -150,7 +165,6 @@ fn main() -> Result<()> {
     unsafe {
         launch!(
             module.mandelbrot<<<grid_size, block_size, 0, stream>>>(
-                NCOLS,
                 zn_limit,
                 points_re_gpu.as_device_ptr(),
                 points_re_gpu.len(),
@@ -173,15 +187,55 @@ fn main() -> Result<()> {
     out_gpu.copy_to(&mut out)?;
     let out = nd::Array2::from_shape_vec(
         (
-            NROWS, NCOLS,
+            N_RE, N_IM,
         ),
         out,
     )?;
 
-    // let out = nd::concatenate![nd::Axis(0), out, out_cpu];
+    let start_execution = Instant::now();
+    unsafe {
+        launch!(
+            module.mandelbrot_local_points<<<grid_size, block_size, 0, stream>>>(
+                N_RE,
+                N_IM,
+                re_min,
+                re_max,
+                re_range,
+                im_min,
+                im_max,
+                im_range,
+                zn_limit,
+                out_gpu_local_points.as_device_ptr(),
+            )
+        )?;
+    }
+
+    stream.synchronize()?;
+    elapsed_times.insert(
+        "gpu_local_points".to_string(),
+        start_execution
+            .elapsed()
+            .as_micros() as f64
+            / 1e3,
+    );
+
+    out_gpu_local_points.copy_to(&mut out_local_points)?;
+    let out_local_points = nd::Array2::from_shape_vec(
+        (
+            N_RE, N_IM,
+        ),
+        out_local_points,
+    )?;
+
+    // let out = nd::concatenate![
+    //     nd::Axis(0),
+    //     out,
+    //     out_local_points
+    // ];
 
     let image = array_to_image(
-        out.t()
+        out_local_points.t()
+        // out.t()
             .as_standard_layout()
             .to_owned(),
     );
