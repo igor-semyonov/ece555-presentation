@@ -64,6 +64,7 @@ fn main() -> Result<()> {
 
     let mut out = vec![0u8; N_RE * N_IM];
     let mut out_local_points = vec![0u8; N_RE * N_IM];
+    let mut out_local_points_64 = vec![0u8; N_RE * N_IM];
     let mut out_cpu: nd::Array2<u8> = nd::Array2::zeros((
         N_RE, N_IM,
     ));
@@ -132,19 +133,23 @@ fn main() -> Result<()> {
     let out_gpu = out
         .as_slice()
         .as_dbuf()?;
-    let out_gpu_local_points = out
+    let out_gpu_local_points = out_local_points
+        .as_slice()
+        .as_dbuf()?;
+    let out_gpu_local_points_64 = out_local_points_64
         .as_slice()
         .as_dbuf()?;
     // let out_gpu_local_points: DeviceBuffer<u8> =
     //     DeviceBuffer::zeroed(N_RE * N_IM)?;
 
-    let threads = Vec2::broadcast(THREADS_DIM);
-    let block_size: BlockSize = threads.into();
-    let grid_size: GridSize =
-        (Vec2::from_slice(&[N_IM, N_RE]) / threads).into();
+    // for some reason I can't figure out, rectangular block
+    // size breaks the local_points kernels
+    // let threads = Vec2::broadcast(THREADS_DIM);
+    // let block_size: BlockSize = threads.into();
+    // let grid_size: GridSize =
+    //     (Vec2::from_slice(&[N_IM, N_RE]) /
+    // threads).into();
 
-    // the following is slightly slower, 7x cpu instead of
-    // 8x vs the square blocks aobove
     let block_size = BlockSize {
         x: 1024,
         y: 1,
@@ -219,12 +224,48 @@ fn main() -> Result<()> {
             / 1e3,
     );
 
+    let start_execution = Instant::now();
+    unsafe {
+        launch!(
+            module.mandelbrot_local_points_64<<<grid_size, block_size, 0, stream>>>(
+                N_RE,
+                N_IM,
+                re_min as f64,
+                re_max as f64,
+                re_range as f64,
+                im_min as f64,
+                im_max as f64,
+                im_range as f64,
+                zn_limit,
+                out_gpu_local_points_64.as_device_ptr(),
+            )
+        )?;
+    }
+
+    stream.synchronize()?;
+    elapsed_times.insert(
+        "gpu_local_points_64".to_string(),
+        start_execution
+            .elapsed()
+            .as_micros() as f64
+            / 1e3,
+    );
+
     out_gpu_local_points.copy_to(&mut out_local_points)?;
     let out_local_points = nd::Array2::from_shape_vec(
         (
             N_RE, N_IM,
         ),
         out_local_points,
+    )?;
+
+    out_gpu_local_points_64
+        .copy_to(&mut out_local_points_64)?;
+    let out_local_points_64 = nd::Array2::from_shape_vec(
+        (
+            N_RE, N_IM,
+        ),
+        out_local_points_64,
     )?;
 
     // let out = nd::concatenate![
@@ -234,8 +275,10 @@ fn main() -> Result<()> {
     // ];
 
     let image = array_to_image(
-        out_local_points.t()
-        // out.t()
+        // out_local_points.t()
+        out_local_points_64
+            .t()
+            // out.t()
             .as_standard_layout()
             .to_owned(),
     );
