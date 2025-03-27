@@ -1,6 +1,7 @@
 #![allow(unused_imports)]
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::ecs::prelude::Event;
+use bevy::input::mouse::MouseMotion;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 use bevy::render::{
@@ -9,7 +10,9 @@ use bevy::render::{
         Extent3d, TextureDimension, TextureFormat,
     },
 };
+use bevy::window::PrimaryWindow;
 use cust;
+use iyes_perf_ui::entry::PerfUiEntry;
 use iyes_perf_ui::prelude::*;
 
 static PTX: &str =
@@ -19,41 +22,87 @@ const N_IM: usize = N_RE >> 1;
 const ZN_LIMIT: u32 = 100;
 
 const PANNING_SPEED: f64 = 0.003;
-const ZOOM_SPEED: f64 = 0.1;
+const DRAG_SPEED: f64 = 0.001;
+const ZOOM_SPEED: f64 = 0.05;
 const ZOOM_SPEED_FINE: f64 = 0.01;
 
 fn main() {
-    App::new()
-        .add_plugins(DefaultPlugins
+    let mut app = App::new();
+    app.add_plugins(DefaultPlugins
                 // .set(ImagePlugin::default_nearest())
-            )
-        .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default())
-        .add_plugins(bevy::diagnostic::EntityCountDiagnosticsPlugin)
-        .add_plugins(bevy::diagnostic::SystemInformationDiagnosticsPlugin)
-        .add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin)
-        .add_plugins(PerfUiPlugin)
-        .add_systems(Update, (
-                scroll_events,
-                arrow_events
-        ))
-        .add_systems(Update, update_viewport)
-        .add_event::<ViewportBoundsEvent>()
-        .add_systems(Startup, setup)
-        .add_systems(Startup, setup_gpu)
-        .run();
+            );
+    app.add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
+    app.add_plugins(
+        bevy::diagnostic::EntityCountDiagnosticsPlugin,
+    );
+    app.add_plugins(bevy::diagnostic::SystemInformationDiagnosticsPlugin);
+    app.add_plugins(
+        bevy::render::diagnostic::RenderDiagnosticsPlugin,
+    );
+    app.add_plugins(PerfUiPlugin);
+    app.add_systems(
+        Update,
+        (
+            scroll_events,
+            arrow_events,
+            my_cursor_system,
+            update_viewport,
+            mouse_motion,
+        ),
+    );
+    app.init_resource::<MyWorldCoords>();
+
+    app.add_event::<ViewportBoundsEvent>();
+    app.add_systems(
+        Startup, setup,
+    );
+    app.add_systems(
+        Startup, setup_gpu,
+    );
+    app.run();
 }
 fn setup_gpu(world: &mut World) {
     let gpu = GpuStuff::default();
     world.insert_non_send_resource(gpu);
 }
 
-#[derive(Component, Debug)]
+/// We will store the world position of the mouse cursor
+/// here.
+#[derive(Resource, Default)]
+struct MyWorldCoords(Vec2);
+
+/// Used to help identify our main camera
+#[derive(Component)]
+struct MainCamera;
+
+#[derive(Component, Debug, Clone)]
 struct ViewportBounds {
     re_min: f64,
     re_max: f64,
     im_min: f64,
     im_max: f64,
 }
+
+// impl PerfUiEntry for ViewportBounds {
+//     type SystemParam;
+//     type Value;
+
+//     fn label(&self) -> &str {
+//         "Bounds"
+//     }
+
+//     fn sort_key(&self) -> i32 {
+//         42
+//     }
+
+//     fn update_value(
+//         &self,
+//         param: &mut <Self::SystemParam as
+// bevy::ecs::system::SystemParam>::Item<'_, '_>,
+//     ) -> Option<Self::Value> {
+//         todo!()
+//     }
+// }
 
 #[derive(Component, Debug)]
 struct FrameBuffer(Vec<u8>);
@@ -123,7 +172,9 @@ fn setup(
     mut images: ResMut<Assets<Image>>,
 ) {
     // spawn a camera to be able to see anything
-    commands.spawn(Camera2d);
+    commands.spawn((
+        Camera2d, MainCamera,
+    ));
 
     // create a simple Perf UI with default settings
     // and all entries provided by the crate:
@@ -156,7 +207,7 @@ fn setup(
 fn arrow_events(
     keys: Res<ButtonInput<KeyCode>>,
     mut ev_bounds: EventWriter<ViewportBoundsEvent>,
-    mut query: Query<(&mut ViewportBounds,)>,
+    mut query: Query<&mut ViewportBounds>,
 ) {
     let mut direction = (
         0i8, 0i8,
@@ -182,7 +233,7 @@ fn arrow_events(
         direction.1 += 1;
     }
     if direction.0 != 0 || direction.1 != 0 {
-        let (mut bounds,) = query.single_mut();
+        let mut bounds = query.single_mut();
         let re_range = bounds.re_max - bounds.re_min;
         let im_range = bounds.im_max - bounds.im_min;
         let re_delta =
@@ -198,6 +249,7 @@ fn arrow_events(
 }
 
 fn scroll_events(
+    mycoords: ResMut<MyWorldCoords>,
     mut evr_scroll: EventReader<MouseWheel>,
     mut ev_bounds: EventWriter<ViewportBoundsEvent>,
     mut query: Query<(&mut ViewportBounds,)>,
@@ -208,37 +260,44 @@ fn scroll_events(
         let mut zoom_nudge: f64 = 0.0;
         match ev.unit {
             MouseScrollUnit::Line => {
-                // println!(
-                //     "Scroll (line units): vertical: {},
-                // horizontal: {}",
-                //     ev.y, ev.x
-                // );
                 zoom_nudge -= ZOOM_SPEED * ev.y as f64;
             }
             MouseScrollUnit::Pixel => {
-                // println!(
-                //     "Scroll (pixel units): vertical: {},
-                // horizontal: {}",
-                //     ev.y, ev.x
-                // );
                 zoom_nudge -= ZOOM_SPEED_FINE * ev.y as f64;
             }
         }
         zoom_factor += zoom_nudge;
-        let (mut bounds,) = query.single_mut();
-        let mut re_range = bounds.re_max - bounds.re_min;
-        let mut im_range = bounds.im_max - bounds.im_min;
-        let re_center =
-            (bounds.re_max + bounds.re_min) / 2.0;
-        let im_center =
-            (bounds.im_max + bounds.im_min) / 2.0;
-        re_range *= zoom_factor;
-        im_range *= zoom_factor;
 
-        bounds.re_min = re_center - re_range / 2.0;
-        bounds.re_max = re_center + re_range / 2.0;
-        bounds.im_min = im_center - im_range / 2.0;
-        bounds.im_max = im_center + im_range / 2.0;
+        let (mut bounds,) = query.single_mut();
+        let ViewportBounds {
+            re_min,
+            re_max,
+            im_min,
+            im_max,
+        } = bounds.clone();
+
+        // mouse position in viewportbounds space
+        let re_m = 2.0
+            * (mycoords
+                .0
+                .x as f64
+                / N_RE as f64)
+            + (re_min + re_max) / 2.0;
+        let im_m = 2.0
+            * (-mycoords
+                .0
+                .y as f64
+                / N_IM as f64)
+            + (im_min + im_max) / 2.0;
+
+        bounds.re_min =
+            (re_min - re_m) * zoom_factor + re_m;
+        bounds.re_max =
+            (re_max - re_m) * zoom_factor + re_m;
+        bounds.im_min =
+            (im_min - im_m) * zoom_factor + im_m;
+        bounds.im_max =
+            (im_max - im_m) * zoom_factor + im_m;
         ev_bounds.send(ViewportBoundsEvent());
     }
 }
@@ -261,10 +320,6 @@ fn update_viewport(
         .read()
         .into_iter()
     {
-        println!(
-            "{:?}",
-            bounds
-        );
         let re_range = bounds.re_max - bounds.re_min;
         let im_range = bounds.im_max - bounds.im_min;
 
@@ -374,17 +429,80 @@ fn update_viewport(
         }
     }
 }
-use image::GrayImage;
-use ndarray as nd;
-#[allow(dead_code)]
-fn array_to_image(arr: nd::Array2<u8>) -> GrayImage {
-    assert!(arr.is_standard_layout());
 
-    let (height, width) = arr.dim();
-    let raw = arr
-        .into_raw_vec_and_offset()
-        .0;
+fn my_cursor_system(
+    mut mycoords: ResMut<MyWorldCoords>,
+    // query to get the window (so we can read the current
+    // cursor position)
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    // query to get camera transform
+    q_camera: Query<
+        (
+            &Camera,
+            &GlobalTransform,
+        ),
+        With<MainCamera>,
+    >,
+) {
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so
+    // Query::single() is OK
+    let (camera, camera_transform) = q_camera.single();
 
-    GrayImage::from_raw(width as u32, height as u32, raw)
-        .expect("container should have the right size for the image dimensions")
+    // There is only one primary window, so we can similarly
+    // get it from the query:
+    let window = q_window.single();
+
+    // check if the cursor is inside the window and get its
+    // position then, ask bevy to convert into world
+    // coordinates, and truncate to discard Z
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(
+            |cursor| {
+                camera
+                    .viewport_to_world(
+                        camera_transform,
+                        cursor,
+                    )
+                    .ok()
+            },
+        )
+        .map(
+            |ray| {
+                ray.origin
+                    .truncate()
+            },
+        )
+    {
+        mycoords.0 = world_position;
+    }
+}
+
+fn mouse_motion(
+    mut evr_motion: EventReader<MouseMotion>,
+    buttons: Res<ButtonInput<MouseButton>>,
+    mut query: Query<&mut ViewportBounds>,
+    mut ev_bounds: EventWriter<ViewportBoundsEvent>,
+) {
+    if buttons.pressed(MouseButton::Left) {
+        let mut bounds = query.single_mut();
+        let mut re_d = 0.0;
+        let mut im_d = 0.0;
+        for ev in evr_motion.read() {
+            re_d += (bounds.re_max - bounds.re_min)
+                * ev.delta
+                    .x as f64
+                * DRAG_SPEED;
+            im_d += (bounds.im_max - bounds.im_min)
+                * ev.delta
+                    .y as f64
+                * DRAG_SPEED;
+        }
+        bounds.re_min -= re_d;
+        bounds.re_max -= re_d;
+        bounds.im_min -= im_d;
+        bounds.im_max -= im_d;
+        ev_bounds.send(ViewportBoundsEvent());
+    }
 }
