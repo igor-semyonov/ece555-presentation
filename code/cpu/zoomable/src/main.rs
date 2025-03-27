@@ -17,6 +17,7 @@ static PTX: &str =
 const N_RE: usize = 1 << 11;
 const N_IM: usize = N_RE >> 1;
 const ZN_LIMIT: u32 = 100;
+const PANNING_SPEED: f32 = 0.003;
 
 fn main() {
     App::new()
@@ -157,24 +158,34 @@ fn arrow_events(
     let mut direction = (
         0i8, 0i8,
     );
-    if keys.pressed(KeyCode::ArrowRight) {
+    if keys.pressed(KeyCode::ArrowRight)
+        || keys.pressed(KeyCode::KeyS)
+    {
         direction.0 += 1;
     }
-    if keys.pressed(KeyCode::ArrowLeft) {
+    if keys.pressed(KeyCode::ArrowLeft)
+        || keys.pressed(KeyCode::KeyA)
+    {
         direction.0 -= 1;
     }
-    if keys.pressed(KeyCode::ArrowUp) {
-        direction.1 += 1;
-    }
-    if keys.pressed(KeyCode::ArrowDown) {
+    if keys.pressed(KeyCode::ArrowUp)
+        || keys.pressed(KeyCode::KeyW)
+    {
         direction.1 -= 1;
+    }
+    if keys.pressed(KeyCode::ArrowDown)
+        || keys.pressed(KeyCode::KeyR)
+    {
+        direction.1 += 1;
     }
     if direction.0 != 0 || direction.1 != 0 {
         let (mut bounds,) = query.single_mut();
         let re_range = bounds.re_max - bounds.re_min;
         let im_range = bounds.im_max - bounds.im_min;
-        let re_delta = 0.005 * re_range * direction.0 as f32;
-        let im_delta = 0.005 * im_range * direction.1 as f32;
+        let re_delta =
+            PANNING_SPEED * re_range * direction.0 as f32;
+        let im_delta =
+            PANNING_SPEED * im_range * direction.1 as f32;
         bounds.re_min += re_delta;
         bounds.re_max += re_delta;
         bounds.im_min += im_delta;
@@ -212,10 +223,17 @@ fn scroll_events(
         }
         zoom_factor += zoom_nudge;
         let (mut bounds,) = query.single_mut();
-        bounds.re_min *= zoom_factor;
-        bounds.re_max *= zoom_factor;
-        bounds.im_min *= zoom_factor;
-        bounds.im_max *= zoom_factor;
+        let mut re_range = bounds.re_max - bounds.re_min;
+        let mut im_range = bounds.im_max - bounds.im_min;
+        let re_center = (bounds.re_max + bounds.re_min) / 2.0;
+        let im_center = (bounds.im_max + bounds.im_min) / 2.0;
+        re_range *= zoom_factor;
+        im_range *= zoom_factor;
+
+        bounds.re_min  = re_center - re_range / 2.0;
+        bounds.re_max  = re_center + re_range / 2.0;
+        bounds.im_min  = im_center - im_range / 2.0;
+        bounds.im_max  = im_center + im_range / 2.0;
         ev_bounds.send(ViewportBoundsEvent());
     }
 }
