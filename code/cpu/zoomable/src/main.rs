@@ -17,7 +17,10 @@ static PTX: &str =
 const N_RE: usize = 1 << 11;
 const N_IM: usize = N_RE >> 1;
 const ZN_LIMIT: u32 = 100;
-const PANNING_SPEED: f32 = 0.003;
+
+const PANNING_SPEED: f64 = 0.003;
+const ZOOM_SPEED: f64 = 0.1;
+const ZOOM_SPEED_FINE: f64 = 0.01;
 
 fn main() {
     App::new()
@@ -46,10 +49,10 @@ fn setup_gpu(world: &mut World) {
 
 #[derive(Component, Debug)]
 struct ViewportBounds {
-    re_min: f32,
-    re_max: f32,
-    im_min: f32,
-    im_max: f32,
+    re_min: f64,
+    re_max: f64,
+    im_min: f64,
+    im_max: f64,
 }
 
 #[derive(Component, Debug)]
@@ -183,9 +186,9 @@ fn arrow_events(
         let re_range = bounds.re_max - bounds.re_min;
         let im_range = bounds.im_max - bounds.im_min;
         let re_delta =
-            PANNING_SPEED * re_range * direction.0 as f32;
+            PANNING_SPEED * re_range * direction.0 as f64;
         let im_delta =
-            PANNING_SPEED * im_range * direction.1 as f32;
+            PANNING_SPEED * im_range * direction.1 as f64;
         bounds.re_min += re_delta;
         bounds.re_max += re_delta;
         bounds.im_min += im_delta;
@@ -201,8 +204,8 @@ fn scroll_events(
 ) {
     use bevy::input::mouse::MouseScrollUnit;
     for ev in evr_scroll.read() {
-        let mut zoom_factor = 1.0;
-        let mut zoom_nudge = 0.0;
+        let mut zoom_factor: f64 = 1.0;
+        let mut zoom_nudge: f64 = 0.0;
         match ev.unit {
             MouseScrollUnit::Line => {
                 // println!(
@@ -210,7 +213,7 @@ fn scroll_events(
                 // horizontal: {}",
                 //     ev.y, ev.x
                 // );
-                zoom_nudge -= 0.1 * ev.y;
+                zoom_nudge -= ZOOM_SPEED * ev.y as f64;
             }
             MouseScrollUnit::Pixel => {
                 // println!(
@@ -218,22 +221,24 @@ fn scroll_events(
                 // horizontal: {}",
                 //     ev.y, ev.x
                 // );
-                zoom_nudge -= 0.05 * ev.y;
+                zoom_nudge -= ZOOM_SPEED_FINE * ev.y as f64;
             }
         }
         zoom_factor += zoom_nudge;
         let (mut bounds,) = query.single_mut();
         let mut re_range = bounds.re_max - bounds.re_min;
         let mut im_range = bounds.im_max - bounds.im_min;
-        let re_center = (bounds.re_max + bounds.re_min) / 2.0;
-        let im_center = (bounds.im_max + bounds.im_min) / 2.0;
+        let re_center =
+            (bounds.re_max + bounds.re_min) / 2.0;
+        let im_center =
+            (bounds.im_max + bounds.im_min) / 2.0;
         re_range *= zoom_factor;
         im_range *= zoom_factor;
 
-        bounds.re_min  = re_center - re_range / 2.0;
-        bounds.re_max  = re_center + re_range / 2.0;
-        bounds.im_min  = im_center - im_range / 2.0;
-        bounds.im_max  = im_center + im_range / 2.0;
+        bounds.re_min = re_center - re_range / 2.0;
+        bounds.re_max = re_center + re_range / 2.0;
+        bounds.im_min = im_center - im_range / 2.0;
+        bounds.im_max = im_center + im_range / 2.0;
         ev_bounds.send(ViewportBoundsEvent());
     }
 }
@@ -277,7 +282,7 @@ fn update_viewport(
         let grid_size = gpu.grid_size;
         unsafe {
             launch!(
-                    module.mandelbrot_local_points<<<grid_size, block_size, 0, stream>>>(
+                    module.mandelbrot_local_points_64<<<grid_size, block_size, 0, stream>>>(
                         N_RE,
                         N_IM,
                         bounds.re_min,
