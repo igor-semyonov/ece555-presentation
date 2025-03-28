@@ -51,6 +51,7 @@ fn main() {
             reset_viewport_bounds,
         ),
     );
+    app.add_systems(First, show_first);
     app.init_resource::<MyWorldCoords>();
 
     app.add_event::<ViewportBoundsEvent>();
@@ -205,6 +206,12 @@ fn setup(
     commands.insert_resource(MyProcGenImage(handle));
 }
 
+fn show_first(
+    mut ev_bounds: EventWriter<ViewportBoundsEvent>,
+) {
+    ev_bounds.send(ViewportBoundsEvent());
+}
+
 fn arrow_events(
     keys: Res<ButtonInput<KeyCode>>,
     mut ev_bounds: EventWriter<ViewportBoundsEvent>,
@@ -339,7 +346,7 @@ fn update_viewport(
         let grid_size = gpu.grid_size;
         unsafe {
             launch!(
-                module.mandelbrot_local_points_64<<<grid_size, block_size, 0, stream>>>(
+                module.mandelbrot64<<<grid_size, block_size, 0, stream>>>(
                     N_RE,
                     N_IM,
                     bounds.re_min,
