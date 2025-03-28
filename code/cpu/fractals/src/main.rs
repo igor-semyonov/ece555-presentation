@@ -10,7 +10,7 @@ use std::time::Instant;
 use vek::Vec2;
 
 static PTX: &str =
-    include_str!("../../../resources/mandelbrot.ptx");
+    include_str!("../../../resources/fractals.ptx");
 
 const N_RE: usize = 1 << 13;
 const N_IM: usize = N_RE >> 1;
@@ -169,7 +169,7 @@ fn main() -> Result<()> {
     let start_execution = Instant::now();
     unsafe {
         launch!(
-            module.mandelbrot<<<grid_size, block_size, 0, stream>>>(
+            module.mandelbrot_non_local_points<<<grid_size, block_size, 0, stream>>>(
                 zn_limit,
                 points_re_gpu.as_device_ptr(),
                 points_re_gpu.len(),
@@ -200,7 +200,7 @@ fn main() -> Result<()> {
     let start_execution = Instant::now();
     unsafe {
         launch!(
-            module.mandelbrot_local_points<<<grid_size, block_size, 0, stream>>>(
+            module.mandelbrot<<<grid_size, block_size, 0, stream>>>(
                 N_RE,
                 N_IM,
                 re_min,
@@ -227,7 +227,7 @@ fn main() -> Result<()> {
     let start_execution = Instant::now();
     unsafe {
         launch!(
-            module.mandelbrot_local_points_64<<<grid_size, block_size, 0, stream>>>(
+            module.mandelbrot64<<<grid_size, block_size, 0, stream>>>(
                 N_RE,
                 N_IM,
                 re_min as f64,

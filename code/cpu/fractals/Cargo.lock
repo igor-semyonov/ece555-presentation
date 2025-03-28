@@ -388,6 +388,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "fractals"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "byteorder",
+ "cc",
+ "cuda_builder",
+ "cust",
+ "image",
+ "jobserver",
+ "log",
+ "nanorand",
+ "ndarray",
+ "num",
+ "rayon",
+ "rayon-core",
+ "regex",
+ "regex-syntax 0.6.28",
+ "thread_local",
+ "vek",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -655,29 +678,6 @@ dependencies = [
  "cc",
  "libc",
  "pkg-config",
-]
-
-[[package]]
-name = "mandelbrot"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "byteorder",
- "cc",
- "cuda_builder",
- "cust",
- "image",
- "jobserver",
- "log",
- "nanorand",
- "ndarray",
- "num",
- "rayon",
- "rayon-core",
- "regex",
- "regex-syntax 0.6.28",
- "thread_local",
- "vek",
 ]
 
 [[package]]
