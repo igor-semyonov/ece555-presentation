@@ -337,20 +337,19 @@ fn update_viewport(
         let grid_size = gpu.grid_size;
         unsafe {
             launch!(
-                    module.mandelbrot_local_points_64<<<grid_size, block_size, 0, stream>>>(
-                        N_RE,
-                        N_IM,
-                        bounds.re_min,
-                        bounds.re_max,
-                        re_range,
-                        bounds.im_min,
-                        bounds.im_max,
-                        im_range,
-                        ZN_LIMIT,
-                        gpu_frame_buffer.as_device_ptr(),
-                    )
+                module.mandelbrot_local_points_64<<<grid_size, block_size, 0, stream>>>(
+                    N_RE,
+                    N_IM,
+                    bounds.re_min,
+                    bounds.re_max,
+                    re_range,
+                    bounds.im_min,
+                    bounds.im_max,
+                    im_range,
+                    ZN_LIMIT,
+                    gpu_frame_buffer.as_device_ptr(),
                 )
-            .unwrap();
+            ).unwrap();
         }
         stream
             .synchronize()
