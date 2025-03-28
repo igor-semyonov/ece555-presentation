@@ -16,7 +16,7 @@ use iyes_perf_ui::entry::PerfUiEntry;
 use iyes_perf_ui::prelude::*;
 
 static PTX: &str =
-    include_str!("../../../resources/mandelbrot.ptx");
+    include_str!("../../../resources/fractals.ptx");
 const N_RE: usize = 1 << 11;
 const N_IM: usize = N_RE >> 1;
 const ZN_LIMIT: u32 = 100;

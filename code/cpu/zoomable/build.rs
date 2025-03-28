@@ -1,8 +1,8 @@
 use cuda_builder::CudaBuilder;
 
 fn main() {
-    CudaBuilder::new("../../gpu/mandelbrot/")
-        .copy_to("../../resources/mandelbrot.ptx")
+    CudaBuilder::new("../../gpu/fractals/")
+        .copy_to("../../resources/fractals.ptx")
         .build()
         .unwrap();
 }
