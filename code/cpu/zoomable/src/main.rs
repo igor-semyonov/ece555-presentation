@@ -48,6 +48,7 @@ fn main() {
             my_cursor_system,
             update_viewport,
             mouse_motion,
+            reset_viewport_bounds,
         ),
     );
     app.init_resource::<MyWorldCoords>();
@@ -228,7 +229,8 @@ fn arrow_events(
         direction.1 -= 1;
     }
     if keys.pressed(KeyCode::ArrowDown)
-        || keys.pressed(KeyCode::KeyR)
+        || (keys.pressed(KeyCode::KeyR)
+            && !keys.pressed(KeyCode::ControlLeft))
     {
         direction.1 += 1;
     }
@@ -502,6 +504,20 @@ fn mouse_motion(
         bounds.re_max -= re_d;
         bounds.im_min -= im_d;
         bounds.im_max -= im_d;
+        ev_bounds.send(ViewportBoundsEvent());
+    }
+}
+
+fn reset_viewport_bounds(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut ev_bounds: EventWriter<ViewportBoundsEvent>,
+    mut query: Query<&mut ViewportBounds>,
+) {
+    if keys.just_pressed(KeyCode::KeyR)
+        && keys.pressed(KeyCode::ControlLeft)
+    {
+        let mut bounds = query.single_mut();
+        *bounds = ViewportBounds::default();
         ev_bounds.send(ViewportBoundsEvent());
     }
 }
