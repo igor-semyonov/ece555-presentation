@@ -5,7 +5,7 @@ use cuda_std::prelude::*;
     improper_ctypes_definitions,
     clippy::missing_safety_doc
 )]
-pub unsafe fn mandelbrot(
+pub unsafe fn mandelbrot_non_local_points(
     zn_limit: u32,
     re: &[f32],
     im: &[f32],
@@ -41,7 +41,7 @@ pub unsafe fn mandelbrot(
 )]
 /// Calculate the point values internally, instead of having
 /// a points vector precomputed and copied to device
-pub unsafe fn mandelbrot_local_points(
+pub unsafe fn mandelbrot(
     n_re: usize,
     n_im: usize,
     re_min: f32,
@@ -89,7 +89,7 @@ pub unsafe fn mandelbrot_local_points(
 )]
 /// Calculate the point values internally, instead of having
 /// a points vector precomputed and copied to device
-pub unsafe fn mandelbrot_local_points_64(
+pub unsafe fn mandelbrot64(
     n_re: usize,
     n_im: usize,
     re_min: f64,
