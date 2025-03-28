@@ -55,10 +55,10 @@ fn main() {
 
     app.add_event::<ViewportBoundsEvent>();
     app.add_systems(
-        Startup, setup,
-    );
-    app.add_systems(
-        Startup, setup_gpu,
+        Startup,
+        (
+            setup, setup_gpu,
+        ),
     );
     app.run();
 }
