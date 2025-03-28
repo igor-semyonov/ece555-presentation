@@ -277,17 +277,17 @@ fn scroll_events(
         } = bounds.clone();
 
         // mouse position in viewportbounds space
-        let re_m = 2.0
+        let re_m = (re_max - re_min)
             * (mycoords
                 .0
                 .x as f64
                 / N_RE as f64)
             + (re_min + re_max) / 2.0;
-        let im_m = 2.0
+        let im_m = (im_max - im_min)
             * (-mycoords
                 .0
                 .y as f64
-                / N_IM as f64)
+                / (N_IM as f64 - 1.0))
             + (im_min + im_max) / 2.0;
 
         bounds.re_min =
