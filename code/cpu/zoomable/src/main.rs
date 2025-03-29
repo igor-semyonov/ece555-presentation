@@ -40,6 +40,7 @@ fn main() {
         bevy::render::diagnostic::RenderDiagnosticsPlugin,
     );
     app.add_plugins(PerfUiPlugin);
+    app.add_perf_ui_simple_entry::<PerfUiEntryViewportBounds>();
     app.add_systems(
         Update,
         (
@@ -51,7 +52,9 @@ fn main() {
             reset_viewport_bounds,
         ),
     );
-    app.add_systems(First, show_first);
+    app.add_systems(
+        First, show_first,
+    );
     app.init_resource::<MyWorldCoords>();
 
     app.add_event::<ViewportBoundsEvent>();
@@ -85,26 +88,48 @@ struct ViewportBounds {
     im_max: f64,
 }
 
-// impl PerfUiEntry for ViewportBounds {
-//     type SystemParam;
-//     type Value;
+use bevy::ecs::system::SystemParam;
+use bevy::ecs::system::lifetimeless::SQuery;
+#[derive(Component, Debug, Clone)]
+#[require(PerfUiRoot)]
+struct PerfUiEntryViewportBounds {
+    pub label: String,
+    pub sort_key: i32,
+}
+impl PerfUiEntry for PerfUiEntryViewportBounds {
+    type SystemParam = SQuery<&'static ViewportBounds>;
+    type Value = ViewportBounds;
 
-//     fn label(&self) -> &str {
-//         "Bounds"
-//     }
+    fn label(&self) -> &str {
+        if self
+            .label
+            .is_empty()
+        {
+            "Bounds"
+        } else {
+            &self.label
+        }
+    }
 
-//     fn sort_key(&self) -> i32 {
-//         42
-//     }
+    fn sort_key(&self) -> i32 {
+        self.sort_key
+    }
 
-//     fn update_value(
-//         &self,
-//         param: &mut <Self::SystemParam as
-// bevy::ecs::system::SystemParam>::Item<'_, '_>,
-//     ) -> Option<Self::Value> {
-//         todo!()
-//     }
-// }
+    fn update_value(
+        &self,
+        query: &mut <Self::SystemParam as SystemParam>::Item<
+            '_,
+            '_,
+        >,
+    ) -> Option<Self::Value> {
+        Some(
+            query
+                .get_single()
+                .ok()?
+                .clone(),
+        )
+    }
+}
 
 #[derive(Component, Debug)]
 struct FrameBuffer(Vec<u8>);
