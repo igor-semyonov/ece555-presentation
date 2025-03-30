@@ -307,9 +307,8 @@ fn scroll_events(
     mut query: Query<(&mut ViewportBounds,)>,
 ) {
     use bevy::input::mouse::MouseScrollUnit;
+    let mut zoom_nudge: f64 = 0.0;
     for ev in evr_scroll.read() {
-        let mut zoom_factor: f64 = 1.0;
-        let mut zoom_nudge: f64 = 0.0;
         match ev.unit {
             MouseScrollUnit::Line => {
                 zoom_nudge -= ZOOM_SPEED * ev.y as f64;
@@ -318,40 +317,36 @@ fn scroll_events(
                 zoom_nudge -= ZOOM_SPEED_FINE * ev.y as f64;
             }
         }
-        zoom_factor += zoom_nudge;
-
-        let (mut bounds,) = query.single_mut();
-        let ViewportBounds {
-            re_min,
-            re_max,
-            im_min,
-            im_max,
-        } = bounds.clone();
-
-        // mouse position in viewportbounds space
-        let re_m = (re_max - re_min)
-            * (mycoords
-                .0
-                .x as f64
-                / N_RE as f64)
-            + (re_min + re_max) / 2.0;
-        let im_m = (im_max - im_min)
-            * (-mycoords
-                .0
-                .y as f64
-                / (N_IM as f64 - 1.0))
-            + (im_min + im_max) / 2.0;
-
-        bounds.re_min =
-            (re_min - re_m) * zoom_factor + re_m;
-        bounds.re_max =
-            (re_max - re_m) * zoom_factor + re_m;
-        bounds.im_min =
-            (im_min - im_m) * zoom_factor + im_m;
-        bounds.im_max =
-            (im_max - im_m) * zoom_factor + im_m;
-        ev_bounds.send(ViewportBoundsEvent());
     }
+    let zoom_factor: f64 = 1.0 + zoom_nudge;
+
+    let (mut bounds,) = query.single_mut();
+    let ViewportBounds {
+        re_min,
+        re_max,
+        im_min,
+        im_max,
+    } = bounds.clone();
+
+    // mouse position in viewportbounds space
+    let re_m = (re_max - re_min)
+        * (mycoords
+            .0
+            .x as f64
+            / N_RE as f64)
+        + (re_min + re_max) / 2.0;
+    let im_m = (im_max - im_min)
+        * (-mycoords
+            .0
+            .y as f64
+            / (N_IM as f64 - 1.0))
+        + (im_min + im_max) / 2.0;
+
+    bounds.re_min = (re_min - re_m) * zoom_factor + re_m;
+    bounds.re_max = (re_max - re_m) * zoom_factor + re_m;
+    bounds.im_min = (im_min - im_m) * zoom_factor + im_m;
+    bounds.im_max = (im_max - im_m) * zoom_factor + im_m;
+    ev_bounds.send(ViewportBoundsEvent());
 }
 
 fn update_viewport(
