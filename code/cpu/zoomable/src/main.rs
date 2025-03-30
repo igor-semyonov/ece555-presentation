@@ -389,7 +389,7 @@ fn update_viewport(
         let grid_size = gpu.grid_size;
         unsafe {
             launch!(
-                module.mandelbrot64<<<grid_size, block_size, 0, stream>>>(
+                module.burning_ship64<<<grid_size, block_size, 0, stream>>>(
                     N_RE,
                     N_IM,
                     bounds.re_min,
