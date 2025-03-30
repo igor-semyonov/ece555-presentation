@@ -80,17 +80,32 @@ struct MyWorldCoords(Vec2);
 #[derive(Component)]
 struct MainCamera;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Clone, Reflect)]
 struct ViewportBounds {
     re_min: f64,
     re_max: f64,
     im_min: f64,
     im_max: f64,
 }
+impl std::fmt::Debug for ViewportBounds {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        write!(
+            f,
+            "Real: [{:8.2e},{:8.2e}]\nImag: [{:8.2e},{:8.2e}]",
+            self.re_min,
+            self.re_max,
+            self.im_min,
+            self.im_max
+        )
+    }
+}
 
 use bevy::ecs::system::SystemParam;
 use bevy::ecs::system::lifetimeless::SQuery;
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
 #[require(PerfUiRoot)]
 struct PerfUiEntryViewportBounds {
     pub label: String,
@@ -205,7 +220,10 @@ fn setup(
 
     // create a simple Perf UI with default settings
     // and all entries provided by the crate:
-    commands.spawn(PerfUiDefaultEntries::default());
+    commands.spawn((
+        PerfUiDefaultEntries::default(),
+        PerfUiEntryViewportBounds::default(),
+    ));
     // commands.spawn(PerfUiAllEntries::default());
 
     #[allow(unused_mut)]
