@@ -95,11 +95,13 @@ impl std::fmt::Debug for ViewportBounds {
     ) -> std::fmt::Result {
         write!(
             f,
-            "Real: [{:8.2e},{:8.2e}]\nImag: [{:8.2e},{:8.2e}]",
+            "Min      Max     Range\nReal{:9.2e}{:9.2e}{:10.2e}\nImag{:9.2e}{:9.2e}{:10.2e}",
             self.re_min,
             self.re_max,
+            self.re_max - self.re_min,
             self.im_min,
-            self.im_max
+            self.im_max,
+            self.im_max - self.im_min,
         )
     }
 }
@@ -121,7 +123,7 @@ impl PerfUiEntry for PerfUiEntryViewportBounds {
             .label
             .is_empty()
         {
-            "Bounds"
+            ""
         } else {
             &self.label
         }
