@@ -363,10 +363,9 @@ fn update_viewport(
     //     query.single_mut();
     let (bounds, mut frame_buffer) = query.single_mut();
 
-    for _ in ev_bounds
-        .read()
-        .into_iter()
-    {
+    if !ev_bounds.is_empty() {
+        ev_bounds.clear();
+
         let re_range = bounds.re_max - bounds.re_min;
         let im_range = bounds.im_max - bounds.im_min;
 
