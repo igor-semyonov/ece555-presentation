@@ -53,7 +53,8 @@ fn main() {
         ),
     );
     app.add_systems(
-        First, show_first,
+        PostStartup,
+        show_first,
     );
     app.init_resource::<MyWorldCoords>();
 
