@@ -368,8 +368,6 @@ fn update_viewport(
         &mut FrameBuffer,
     )>,
 ) {
-    // let (bounds, gpu_stuff, mut frame_buffer) =
-    //     query.single_mut();
     let (bounds, mut frame_buffer) = query.single_mut();
 
     if !ev_bounds.is_empty() {
