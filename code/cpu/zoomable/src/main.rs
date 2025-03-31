@@ -23,8 +23,8 @@ const ZN_LIMIT: u32 = 100;
 
 const PANNING_SPEED: f64 = 0.003;
 const DRAG_SPEED: f64 = 0.001;
-const ZOOM_SPEED: f64 = 0.05;
-const ZOOM_SPEED_FINE: f64 = 0.01;
+const ZOOM_SPEED: f64 = 0.1;
+const ZOOM_SPEED_FINE: f64 = 0.02;
 
 fn main() {
     let mut app = App::new();
@@ -305,25 +305,40 @@ fn arrow_events(
 
 fn scroll_events(
     mycoords: ResMut<MyWorldCoords>,
-    mut evr_scroll: EventReader<MouseWheel>,
+    mut ev_scroll: EventReader<MouseWheel>,
     mut ev_bounds: EventWriter<ViewportBoundsEvent>,
     mut query: Query<(&mut ViewportBounds,)>,
 ) {
     use bevy::input::mouse::MouseScrollUnit;
-    let mut zoom_nudge: f64 = 0.0;
-    for ev in evr_scroll.read() {
-        match ev.unit {
-            MouseScrollUnit::Line => {
-                zoom_nudge -= ZOOM_SPEED * ev.y as f64;
-            }
-            MouseScrollUnit::Pixel => {
-                zoom_nudge -= ZOOM_SPEED_FINE * ev.y as f64;
-            }
-        }
-    }
-    if zoom_nudge != 0.0 {
-        let zoom_factor: f64 = 1.0 + zoom_nudge;
-
+    let zoom_factor = 1.0
+        + ev_scroll
+            .read()
+            .into_iter()
+            .map(
+                |ev| {
+                    if ev.y > 0.0 {
+                        -match ev.unit {
+                            MouseScrollUnit::Line => {
+                                ZOOM_SPEED
+                            }
+                            MouseScrollUnit::Pixel => {
+                                ZOOM_SPEED_FINE
+                            }
+                        }
+                    } else {
+                        match ev.unit {
+                            MouseScrollUnit::Line => {
+                                ZOOM_SPEED
+                            }
+                            MouseScrollUnit::Pixel => {
+                                ZOOM_SPEED_FINE
+                            }
+                        }
+                    }
+                },
+            )
+            .sum::<f64>();
+    if zoom_factor != 1.0 {
         let (mut bounds,) = query.single_mut();
         let ViewportBounds {
             re_min,
