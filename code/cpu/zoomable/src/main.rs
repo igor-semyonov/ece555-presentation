@@ -28,9 +28,22 @@ const ZOOM_SPEED_FINE: f64 = 0.02;
 
 fn main() {
     let mut app = App::new();
-    app.add_plugins(DefaultPlugins
-                // .set(ImagePlugin::default_nearest())
-            );
+    app.add_plugins(
+        DefaultPlugins.set(
+            WindowPlugin {
+                primary_window: Some(
+                    Window {
+                        title: "Zoomable Fractals".into(),
+                        name: Some("zoomable_fractal.app".into()),
+                        mode: bevy::window::WindowMode::BorderlessFullscreen(MonitorSelection::Current),
+                        present_mode: bevy::window::PresentMode::AutoNoVsync,
+                        ..Default::default()
+                    },
+                ),
+                ..Default::default()
+            },
+        ),
+    );
     app.add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default());
     app.add_plugins(
         bevy::diagnostic::EntityCountDiagnosticsPlugin,

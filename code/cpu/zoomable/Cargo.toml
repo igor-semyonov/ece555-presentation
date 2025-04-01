@@ -12,7 +12,7 @@ opt-level = 1
 opt-level = 3
 
 [dependencies]
-bevy = "0.15.3"
+bevy = { version = "0.15.3", features = ["wayland"] }
 iyes_perf_ui = "0.4.0"
 
 image = "0.25.5"
