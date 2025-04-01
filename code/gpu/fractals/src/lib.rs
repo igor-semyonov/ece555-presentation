@@ -1,5 +1,7 @@
 use cuda_std::prelude::*;
 
+const ZN_SKIP: u32 = 5;
+
 #[kernel]
 #[allow(
     improper_ctypes_definitions,
@@ -18,13 +20,15 @@ pub unsafe fn mandelbrot_non_local_points(
     let mut z_re = c_re;
     let mut z_im = c_im;
     let mut converges = 255u8;
-    for _ in 0..zn_limit {
-        (
-            z_re, z_im,
-        ) = (
-            z_re * z_re - z_im * z_im + c_re,
-            2.0 * z_re * z_im + c_im,
-        );
+    for _ in 0..zn_limit / ZN_SKIP {
+        for _ in 0..ZN_SKIP {
+            (
+                z_re, z_im,
+            ) = (
+                z_re * z_re - z_im * z_im + c_re,
+                2.0 * z_re * z_im + c_im,
+            );
+        }
         if z_re * z_re + z_im * z_im > 4.0 {
             converges = 0;
             break;
@@ -67,13 +71,15 @@ pub unsafe fn mandelbrot(
 
     let mut z_re = c_re;
     let mut z_im = c_im;
-    for _ in 0..zn_limit {
-        (
-            z_re, z_im,
-        ) = (
-            z_re * z_re - z_im * z_im + c_re,
-            2.0 * z_re * z_im + c_im,
-        );
+    for _ in 0..zn_limit / ZN_SKIP {
+        for _ in 0..ZN_SKIP {
+            (
+                z_re, z_im,
+            ) = (
+                z_re * z_re - z_im * z_im + c_re,
+                2.0 * z_re * z_im + c_im,
+            );
+        }
         if z_re * z_re + z_im * z_im > 4.0 {
             let elem = &mut *out.add(idx_linear);
             *elem = 255;
@@ -115,13 +121,15 @@ pub unsafe fn mandelbrot64(
 
     let mut z_re = c_re;
     let mut z_im = c_im;
-    for _ in 0..zn_limit {
-        (
-            z_re, z_im,
-        ) = (
-            z_re * z_re - z_im * z_im + c_re,
-            2.0 * z_re * z_im + c_im,
-        );
+    for _ in 0..zn_limit / ZN_SKIP {
+        for _ in 0..ZN_SKIP {
+            (
+                z_re, z_im,
+            ) = (
+                z_re * z_re - z_im * z_im + c_re,
+                2.0 * z_re * z_im + c_im,
+            );
+        }
         if z_re * z_re + z_im * z_im > 4.0 {
             let elem = &mut *out.add(idx_linear);
             *elem = 255;
@@ -163,13 +171,15 @@ pub unsafe fn burning_ship64(
 
     let mut z_re = c_re;
     let mut z_im = c_im;
-    for _ in 0..zn_limit {
-        (
-            z_re, z_im,
-        ) = (
-            z_re * z_re - z_im * z_im + c_re,
-            2.0 * (z_re * z_im).abs() + c_im,
-        );
+    for _ in 0..zn_limit / ZN_SKIP {
+        for _ in 0..ZN_SKIP {
+            (
+                z_re, z_im,
+            ) = (
+                z_re * z_re - z_im * z_im + c_re,
+                2.0 * (z_re * z_im).abs() + c_im,
+            );
+        }
         if z_re * z_re + z_im * z_im > 4.0 {
             let elem = &mut *out.add(idx_linear);
             *elem = 255;
