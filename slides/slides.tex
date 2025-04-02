@@ -18,104 +18,152 @@
 \begin{document}
 
 \begin{frame}
-    \vspace{-1.8cm}
+	\vspace{-1.8cm}
 	\titlepage
 \end{frame}
 
 \begin{frame}
-	\frametitle{Why not C?}
-    \framesubtitle{}
+	\frametitle{Why not Just Use C?}
+	\framesubtitle{}
 
-    It should not be used for production.
+	It should not be used for production.
 
-    See \url{https://veresov.pro/cmustdie/}
+	See \url{https://veresov.pro/cmustdie/}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Why Rust?}
-    \framesubtitle{Type System}
+	\framesubtitle{Type System}
+
+	insert real/fake cat example from \url{https://www.youtube.com/watch?v=z-0-bbc80JM&t=514s}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Why Rust?}
-    \framesubtitle{Safety}
+	\framesubtitle{Safety}
+
+	Insert image of my IDE showing an error such as attempting to use a value after it is moved out of scope.
 \end{frame}
 
 \begin{frame}
 	\frametitle{Why Rust?}
-    \framesubtitle{Ergonomics while remaining fast}
+	\framesubtitle{Ergonomics while remaining fast}
 
-    Here I may include my rust implementation of project 1 and compare it to my C version in both ergonomics, safety, and speed.
+	Here I may include my rust implementation of project 1 and compare it to my C version in both ergonomics, safety, and speed.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Why Rust?}
+	\framesubtitle{Compiler has Super Powers}
+
+	Since the type system has information about our data, both ownership and lifetime, safe parallel processing is much easier. Chunks are a perfect example of this. The typesystem ensures that each chunk references a seperate portion of memory. This is why paraellizing an iterator over a chunks or chunks\_mut object is trivial.
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust and CUDA}
-    \framesubtitle{Problems regarding shared memory in Rust}
+	\framesubtitle{Current options}
+
+	\begin{outline}[itemize]
+		\1 Rust GPU
+		\1 Rust CUDA
+	\end{outline}
+
+	Maybe mention other options for GPU programming in rust, like any rust support for ROCm, HIP, intel gaudi, or other.
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust and CUDA}
-    \framesubtitle{Current options}
-
-    \begin{outline}[itemize]
-        \1 Rust GPU
-        \1 Rust CUDA
-    \end{outline}
+	\framesubtitle{Description of how the Rust-CUDA crate works}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust and CUDA}
-    \framesubtitle{Focusing on Rust CUDA}
+	\framesubtitle{Problems with shared memory access in rust, therefore we need to use unsafe}
+\end{frame}
 
-    Currently being rebooted and is in active development.
+\begin{frame}
+	\frametitle{Rust and CUDA}
+	\framesubtitle{Focusing on Rust CUDA}
 
-    Uses nvidia's nvvm tool which is built on LLVM 7.
+	Currently being rebooted and is in active development.
+
+	Uses nvidia's nvvm tool which is built on LLVM 7.
 \end{frame}
 
 \begin{frame}
 	\frametitle{What is a compiler?}
-    \framesubtitle{}
+	\framesubtitle{}
 
-    Description of problems when going straing from source code to machine code.
+	Description of problems when going straing from source code to machine code.
 \end{frame}
 
 \begin{frame}
 	\frametitle{The problem LLVM solves}
-    \framesubtitle{}
+	\framesubtitle{}
 
-    Description of LLVM and it's intermediate representation and how this has enabled much easier language development.
+	Description of LLVM and it's intermediate representation and how this has enabled much easier language development.
 \end{frame}
 
 \begin{frame}
 	\frametitle{NVVM}
-    \framesubtitle{}
+	\framesubtitle{}
 
-    How NVVM works
+	How NVVM works
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust CUDA and NVVM}
-    \framesubtitle{}
+	\framesubtitle{}
 
-    How NVVM is used in Rust CUDA
+	How NVVM is used in Rust CUDA
+\end{frame}
+
+\begin{frame}
+	\frametitle{Fractals}
+	\framesubtitle{Mandelbrot and Burning Ship}
+    $c \in \mathbb{C}$ is in the mandelbrot set if the sequence $\{z_n\}$ converges.
+
+	\begin{equation*}
+        z_{n+1} := z_n^2 + c \hspace{1cm} z_0 = 0
+	\end{equation*}
+
+    The Burning Ship fractal is defined similarly but the sequence is
+
+	\begin{equation*}
+        z_{n+1} := (\abs{\re(z_n)} + \abs{\im(z_n)}i)^2 + c \hspace{1cm} z_0 = 0
+	\end{equation*}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Fractals}
+	\framesubtitle{Timing Results for 1 frame on CPU and GPU}
+
+    I will add the single, frame timing results here
+\end{frame}
+
+\begin{frame}
+	\frametitle{Fractals}
+	\framesubtitle{Live Demo}
+
+    I plan to be sharing my screen for the presentation and will switch to a live demo here.
 \end{frame}
 
 \begin{frame}
 	\frametitle{This is a slide}
-    \framesubtitle{With a subtitle}
+	\framesubtitle{With a subtitle}
 
 	\begin{columns}
 		\begin{column}{0.6\textwidth}
-            This is some text in a column. Could be a figure instead.
+			This is some text in a column. Could be a figure instead.
 		\end{column}
 		\begin{column}{0.4\textwidth}
 			\begin{outline}[itemize]
 				\1
-                This is a list
+				This is a list
 				\1
-                It is an itemized one
+				It is an itemized one
 				\1
-                Hence the bullets
+				Hence the bullets
 			\end{outline}
 		\end{column}
 	\end{columns}
