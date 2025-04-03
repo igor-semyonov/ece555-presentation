@@ -56,19 +56,20 @@
 	\frametitle{Why Rust?}
 	\framesubtitle{Single threaded bsort}
 	\begin{columns}
-        \begin{column}{ 0.5\textwidth }
-            \lstinputlisting[
-            linerange=6-7,
-            caption=Single threaded bsort,
-            frame=tblr
-            ]{./code-snippets-rs/src/project-1-example.rs}
-        \end{column}
+		\begin{column}{ 0.5\textwidth }
+			\lstinputlisting[
+				linerange=6-7,
+				caption=Single threaded bsort,
+				frame=tblr,
+				language=Rust
+			]{./code-snippets-rs/src/project-1-example.rs}
+		\end{column}
 		\begin{column}{ 0.4\textwidth }
-            \begin{itemize}
-                \item \Verb|a| is a vector of numbers
-                \item \Verb|chunks\_mut| slices the vector into non-overlapping slices of the given length
-                \item \Verb|for\_each| iterates over the chunks, running the provided function with each chunk as the input.
-            \end{itemize}
+			\begin{itemize}
+				\item \Verb|a| is a vector of numbers
+				\item \Verb|chunks\_mut| slices the vector into non-overlapping slices of the given length
+				\item \Verb|for\_each| iterates over the chunks, running the provided function with each chunk as the input.
+			\end{itemize}
 		\end{column}
 	\end{columns}
 \end{frame}
@@ -77,20 +78,53 @@
 	\frametitle{Why Rust?}
 	\framesubtitle{Concurrency is easy while avoiding race conditions}
 	\begin{columns}
-        \begin{column}{ 0.5\textwidth }
-            \lstinputlisting[
-            linerange=2-4,
-            caption=Example of easy parallelization,
-            frame=tblr
-            ]{./code-snippets-rs/src/project-1-example.rs}
-        \end{column}
+		\begin{column}{ 0.5\textwidth }
+			\lstinputlisting[
+				linerange=2-4,
+				caption=Example of easy parallelization,
+				frame=tblr,
+				language=Rust
+			]{./code-snippets-rs/src/project-1-example.rs}
+		\end{column}
 		\begin{column}{ 0.4\textwidth }
+			\begin{itemize}
+				\item Chunks is known to split a vector into distinct slices
+				\item Hence we can safely send each chunk to a different thread
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Rust Ownership and Borrowing}
+	\framesubtitle{Problems with shared memory access in Rust}
+
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Chunks is known to split a vector into distinct slices
-                \item Hence we can safely send each chunk to a different thread
+                \item Ownership Rules\cite[Ch04-01]{rust-book}
+                    \begin{itemize}
+                        \item Each value has an owner
+                        \item There can only be one owner at a time
+                        \item When the owner goes out of scope, the value will be dropped.
+                    \end{itemize}
+            \end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Borrow Rules\cite[Ch04-02]{rust-book}
+                    \begin{itemize}
+                        \item At any given time, you can have either one mutable reference or any number of immutable references.
+                        \item References must always be valid.
+                    \end{itemize}
             \end{itemize}
 		\end{column}
 	\end{columns}
+
+    \vspace{1cm}
+    C, and especially CUDA, style shared mutable memory access violates the ownership and borrow rules.
+
+    At this time, we therefore need to use unsafe Rust when writing and calling GPU kernels.
 \end{frame}
 
 \begin{frame}
@@ -108,11 +142,6 @@
 \begin{frame}
 	\frametitle{Rust and CUDA}
 	\framesubtitle{Description of how the Rust-CUDA crate works}
-\end{frame}
-
-\begin{frame}
-	\frametitle{Rust and CUDA}
-	\framesubtitle{Problems with shared memory access in rust, therefore we need to use unsafe}
 \end{frame}
 
 \begin{frame}
@@ -217,7 +246,7 @@
 %     \setbeamertemplate{bibliography item}{\Huge$\rightharpoonup$}
 %     % \bibliographystyle{siam}
 % \end{frame}
-% \bibliographystyle{amsalpha}
-% \bibliography{../refs}
+\bibliographystyle{ieeetr}
+\bibliography{./refs}
 
 \end{document}
