@@ -1,7 +1,11 @@
+\usepackage[T1]{fontenc}
+
 %\usetheme{Berkeley}
 % \usetheme{PaloAlto}
 \usetheme{moloch}
 \usecolortheme{albatross}
+
+\usepackage{fancyvrb}
 
 \logo{
     \includegraphics[scale=0.1]{logo-gmu-ece.png }
@@ -56,6 +60,7 @@
 \makeatother
 
 
+
 % not using this, but can be nice
 \usepackage{shadow}     % this creates a shaded box; see \shabox below
 
@@ -76,3 +81,44 @@
 % ]{table}
 % % \mdfdefinestyle{exampledefault}{linewidth=2pt}
 % % \newtheorem{my_example}{EXAMPLE}[chapter]
+
+\newcommand{\figref}[1]{Figure \ref{#1}}
+\newcommand{\lstref}[1]{Listing \ref{#1}}
+\newcommand{\tabref}[1]{Table \ref{#1}}
+
+\usepackage{listings, listings-rust}
+\usepackage[framemethod=TikZ]{mdframed}
+\lstset
+{
+	language=Rust,
+	basicstyle=\footnotesize,
+	numbers=left,
+	numberstyle=\tiny,
+	stepnumber=1,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+	xleftmargin=-8pt,
+	frame=T,
+}
+\newcommand{\codefileNoFigure}[3]{
+	\mdframed[roundcorner=5pt, backgroundcolor=blue!30]
+	% \lstinputlisting[caption=\texttt{#1} {#2}, label=#3]{#1}
+	\lstinputlisting[caption={#2}, label=#3]{#1}
+	\endmdframed
+}
+\newcommand{\codefileRustNoFigure}[3]{
+	\mdframed[roundcorner=5pt, backgroundcolor=blue!30]
+	\lstinputlisting[
+		language=Rust,
+		caption={#2},
+		label=#3
+	]{#1}
+	\endmdframed
+}
+\newcommand{\codefile}[3]{
+	\begin{figure}[H]
+		\codefileNoFigure{#1}{#2}{#3}
+	\end{figure}
+}

@@ -54,9 +54,43 @@
 
 \begin{frame}
 	\frametitle{Why Rust?}
-	\framesubtitle{Compiler has Super Powers}
+	\framesubtitle{Single threaded bsort}
+	\begin{columns}
+        \begin{column}{ 0.5\textwidth }
+            \lstinputlisting[
+            linerange=6-7,
+            caption=Single threaded bsort,
+            frame=tblr
+            ]{./code-snippets-rs/src/project-1-example.rs}
+        \end{column}
+		\begin{column}{ 0.4\textwidth }
+            \begin{itemize}
+                \item \Verb|a| is a vector of numbers
+                \item \Verb|chunks\_mut| slices the vector into non-overlapping slices of the given length
+                \item \Verb|for\_each| iterates over the chunks, running the provided function with each chunk as the input.
+            \end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
 
-	Since the type system has information about our data, both ownership and lifetime, safe parallel processing is much easier. Chunks are a perfect example of this. The typesystem ensures that each chunk references a seperate portion of memory. This is why paraellizing an iterator over a chunks or chunks\_mut object is trivial.
+\begin{frame}
+	\frametitle{Why Rust?}
+	\framesubtitle{Concurrency is easy while avoiding race conditions}
+	\begin{columns}
+        \begin{column}{ 0.5\textwidth }
+            \lstinputlisting[
+            linerange=2-4
+            caption=Example of easy parallelization,
+            frame=tblr
+            ]{./code-snippets-rs/src/project-1-example.rs}
+        \end{column}
+		\begin{column}{ 0.4\textwidth }
+            \begin{itemize}
+                \item Chunks is known to split a vector into distinct slices
+                \item Hence we can safely send each chunk to a different thread
+            \end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -121,16 +155,16 @@
 \begin{frame}
 	\frametitle{Fractals}
 	\framesubtitle{Mandelbrot and Burning Ship}
-    $c \in \mathbb{C}$ is in the mandelbrot set if the sequence $\{z_n\}$ converges.
+	$c \in \mathbb{C}$ is in the mandelbrot set if the sequence $\{z_n\}$ converges.
 
 	\begin{equation*}
-        z_{n+1} := z_n^2 + c \hspace{1cm} z_0 = 0
+		z_{n+1} := z_n^2 + c \hspace{1cm} z_0 = 0
 	\end{equation*}
 
-    The Burning Ship fractal is defined similarly but the sequence is
+	The Burning Ship fractal is defined similarly but the sequence is
 
 	\begin{equation*}
-        z_{n+1} := (\abs{\re(z_n)} + \abs{\im(z_n)}i)^2 + c \hspace{1cm} z_0 = 0
+		z_{n+1} := (\abs{\re(z_n)} + \abs{\im(z_n)}i)^2 + c \hspace{1cm} z_0 = 0
 	\end{equation*}
 \end{frame}
 
@@ -138,14 +172,14 @@
 	\frametitle{Fractals}
 	\framesubtitle{Timing Results for 1 frame on CPU and GPU}
 
-    I will add the single, frame timing results here
+	I will add the single, frame timing results here
 \end{frame}
 
 \begin{frame}
 	\frametitle{Fractals}
 	\framesubtitle{Live Demo}
 
-    I plan to be sharing my screen for the presentation and will switch to a live demo here.
+	I plan to be sharing my screen for the presentation and will switch to a live demo here.
 \end{frame}
 
 \begin{frame}
