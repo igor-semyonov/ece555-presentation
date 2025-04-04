@@ -101,30 +101,30 @@
 
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item Ownership Rules\cite[Ch04-01]{rust-book}
-                    \begin{itemize}
-                        \item Each value has an owner
-                        \item There can only be one owner at a time
-                        \item When the owner goes out of scope, the value will be dropped.
-                    \end{itemize}
-            \end{itemize}
+			\begin{itemize}
+				\item Ownership Rules\cite[Ch04-01]{rust-book}
+				      \begin{itemize}
+					      \item Each value has an owner
+					      \item There can only be one owner at a time
+					      \item When the owner goes out of scope, the value will be dropped.
+				      \end{itemize}
+			\end{itemize}
 		\end{column}
 		\begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item Borrow Rules\cite[Ch04-02]{rust-book}
-                    \begin{itemize}
-                        \item At any given time, you can have either one mutable reference or any number of immutable references.
-                        \item References must always be valid.
-                    \end{itemize}
-            \end{itemize}
+			\begin{itemize}
+				\item Borrow Rules\cite[Ch04-02]{rust-book}
+				      \begin{itemize}
+					      \item At any given time, you can have either one mutable reference or any number of immutable references.
+					      \item References must always be valid.
+				      \end{itemize}
+			\end{itemize}
 		\end{column}
 	\end{columns}
 
-    \vspace{1cm}
-    C, and especially CUDA, style shared mutable memory access violates the ownership and borrow rules.
+	\vspace{1cm}
+	C, and especially CUDA, style shared mutable memory access violates the ownership and borrow rules.
 
-    At this time, we therefore need to use unsafe Rust when writing and calling GPU kernels.
+	At this time, we therefore need to use unsafe Rust when writing and calling GPU kernels.
 \end{frame}
 
 \begin{frame}
@@ -195,6 +195,62 @@
 	\begin{equation*}
 		z_{n+1} := (\abs{\re(z_n)} + \abs{\im(z_n)}i)^2 + c \hspace{1cm} z_0 = 0
 	\end{equation*}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Mandelbrot Kernel}
+	% \framesubtitle{Mandelbrot and Burning Ship}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\lstinputlisting[
+				linerange=48-70,
+				basicstyle=\tiny,
+				% caption=,
+				frame=tblr,
+				language=Rust
+			]{../code/gpu/fractals/src/lib.rs}
+		\end{column}
+		\begin{column}{0.45\textwidth}
+			\lstinputlisting[
+				linerange=72-89,
+                firstnumber=24,
+				basicstyle=\tiny,
+				% caption=,
+				frame=tblr,
+				language=Rust
+			]{../code/gpu/fractals/src/lib.rs}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Launching the Kernel}
+	% \framesubtitle{Mandelbrot and Burning Ship}
+	\begin{columns}
+		\begin{column}{0.55\textwidth}
+			\lstinputlisting[
+				linerange=205-220,
+				basicstyle=\tiny,
+				% caption=,
+				frame=tblr,
+				language=Rust
+			]{../code/cpu/fractals/src/main.rs}
+		\end{column}
+		\begin{column}{0.3\textwidth}
+            \begin{itemize}
+                \item Fiarly similar to launching a kernel in C.
+                \item Must be used inside an \Verb|unsafe| block since the kernel itself is an unsafe function.
+            \end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Output Image}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{./figures/mandelbrot.png}
+    \end{figure}
 \end{frame}
 
 \begin{frame}
