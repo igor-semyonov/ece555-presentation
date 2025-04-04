@@ -14,6 +14,7 @@ static PTX: &str =
 
 const N_RE: usize = 1 << 13;
 const N_IM: usize = N_RE >> 1;
+#[allow(dead_code)]
 const THREADS_DIM: usize = 16;
 
 fn main() -> Result<()> {
@@ -62,9 +63,9 @@ fn main() -> Result<()> {
             / 1e3,
     );
 
+    let mut out_non_local_points = vec![0u8; N_RE * N_IM];
     let mut out = vec![0u8; N_RE * N_IM];
-    let mut out_local_points = vec![0u8; N_RE * N_IM];
-    let mut out_local_points_64 = vec![0u8; N_RE * N_IM];
+    let mut out64 = vec![255u8; N_RE * N_IM];
     let mut out_cpu: nd::Array2<u8> = nd::Array2::zeros((
         N_RE, N_IM,
     ));
@@ -130,13 +131,13 @@ fn main() -> Result<()> {
         .as_slice()
         .as_dbuf()?;
 
+    let out_gpu_non_local_points = out_non_local_points
+        .as_slice()
+        .as_dbuf()?;
     let out_gpu = out
         .as_slice()
         .as_dbuf()?;
-    let out_gpu_local_points = out_local_points
-        .as_slice()
-        .as_dbuf()?;
-    let out_gpu_local_points_64 = out_local_points_64
+    let out_gpu64 = out64
         .as_slice()
         .as_dbuf()?;
     // let out_gpu_local_points: DeviceBuffer<u8> =
@@ -175,7 +176,7 @@ fn main() -> Result<()> {
                 points_re_gpu.len(),
                 points_im_gpu.as_device_ptr(),
                 points_im_gpu.len(),
-                out_gpu.as_device_ptr(),
+                out_gpu_non_local_points.as_device_ptr(),
             )
         )?;
     }
@@ -189,13 +190,16 @@ fn main() -> Result<()> {
             / 1e3,
     );
 
-    out_gpu.copy_to(&mut out)?;
-    let out = nd::Array2::from_shape_vec(
-        (
-            N_RE, N_IM,
-        ),
-        out,
-    )?;
+    out_gpu_non_local_points
+        .copy_to(&mut out_non_local_points)?;
+    #[allow(unused_variables)]
+    let out_non_local_points_nd =
+        nd::Array2::from_shape_vec(
+            (
+                N_RE, N_IM,
+            ),
+            out_non_local_points,
+        )?;
 
     let start_execution = Instant::now();
     unsafe {
@@ -210,7 +214,7 @@ fn main() -> Result<()> {
                 im_max,
                 im_range,
                 zn_limit,
-                out_gpu_local_points.as_device_ptr(),
+                out_gpu.as_device_ptr(),
             )
         )?;
     }
@@ -237,7 +241,7 @@ fn main() -> Result<()> {
                 im_max as f64,
                 im_range as f64,
                 zn_limit,
-                out_gpu_local_points_64.as_device_ptr(),
+                out_gpu64.as_device_ptr(),
             )
         )?;
     }
@@ -251,21 +255,21 @@ fn main() -> Result<()> {
             / 1e3,
     );
 
-    out_gpu_local_points.copy_to(&mut out_local_points)?;
-    let out_local_points = nd::Array2::from_shape_vec(
+    out_gpu.copy_to(&mut out)?;
+    #[allow(unused_variables)]
+    let out_nd = nd::Array2::from_shape_vec(
         (
             N_RE, N_IM,
         ),
-        out_local_points,
+        out,
     )?;
 
-    out_gpu_local_points_64
-        .copy_to(&mut out_local_points_64)?;
-    let out_local_points_64 = nd::Array2::from_shape_vec(
+    out_gpu64.copy_to(&mut out64)?;
+    let out64_nd = nd::Array2::from_shape_vec(
         (
             N_RE, N_IM,
         ),
-        out_local_points_64,
+        out64,
     )?;
 
     // let out = nd::concatenate![
@@ -276,7 +280,7 @@ fn main() -> Result<()> {
 
     let image = array_to_image(
         // out_local_points.t()
-        out_local_points_64
+        out64_nd
             .t()
             // out.t()
             .as_standard_layout()
