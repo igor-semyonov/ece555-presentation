@@ -132,7 +132,7 @@ pub unsafe fn mandelbrot64(
         }
         if z_re * z_re + z_im * z_im > 4.0 {
             let elem = &mut *out.add(idx_linear);
-            *elem = 255;
+            *elem = 0;
             break;
         }
     }
