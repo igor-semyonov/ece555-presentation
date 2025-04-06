@@ -183,7 +183,7 @@ fn main() -> Result<()> {
 
     stream.synchronize()?;
     elapsed_times.insert(
-        "gpu".to_string(),
+        "gpu-non-local-points".to_string(),
         start_execution
             .elapsed()
             .as_micros() as f64
@@ -221,7 +221,7 @@ fn main() -> Result<()> {
 
     stream.synchronize()?;
     elapsed_times.insert(
-        "gpu_local_points".to_string(),
+        "gpu".to_string(),
         start_execution
             .elapsed()
             .as_micros() as f64
@@ -248,7 +248,7 @@ fn main() -> Result<()> {
 
     stream.synchronize()?;
     elapsed_times.insert(
-        "gpu_local_points_64".to_string(),
+        "gpu64".to_string(),
         start_execution
             .elapsed()
             .as_micros() as f64
@@ -300,16 +300,20 @@ fn main() -> Result<()> {
                 );
             },
         );
-    let cpu_time = elapsed_times
-        .get("cpu-rayon")
-        .unwrap();
-    let gpu_time = elapsed_times
-        .get("gpu")
-        .unwrap();
-    println!(
-        "\nGPU execution time was {:.2} times faster than CPU using rayon",
-        cpu_time / gpu_time
-    );
+
+    let mut latex_table = elapsed_times
+        .iter()
+        .fold(
+            String::new(),
+            |acc, (key, time)| {
+                acc + &format!(
+                    "{} & {} \\\\\n",
+                    key, time
+                )
+            },
+        );
+    latex_table.pop();
+    std::fs::write("./table.tex", latex_table)?;
 
     Ok(())
 }
