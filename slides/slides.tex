@@ -136,12 +136,22 @@
 		\1 Rust CUDA
 	\end{outline}
 
+	rust-CUDA for targeting NVIDIA GPUs and their specific libraries
+	rust-gpu for vendor agnostic GPU programming
+
+ 	Others in Rust ecosystem include: Vulkano, wgpu, Miniquad, Sierra, Glium, Ash, Erupt
+
 	Maybe mention other options for GPU programming in rust, like any rust support for ROCm, HIP, intel gaudi, or other.
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust and CUDA}
 	\framesubtitle{Description of how the Rust-CUDA crate works}
+
+ 	\begin{itemize}
+  		\item \textbf{Purpose:} Enable GPU programming in Rust by writing CUDA kernels directly in Rust.
+      		\item Need the CUDA SDK, LLVM7.x, and approriate pathing.
+  	\end{itemize}
 \end{frame}
 
 \begin{frame}
