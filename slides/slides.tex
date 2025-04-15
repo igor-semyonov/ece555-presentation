@@ -32,28 +32,69 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Why Rust?}
+	\frametitle{Why Rust}
 	\framesubtitle{Type System}
 
-	insert real/fake cat example from \url{https://www.youtube.com/watch?v=z-0-bbc80JM&t=514s}
+	\begin{columns}
+		\begin{column}{0.4\textwidth}
+			\lstinputlisting[
+				linerange=1-9,
+				caption=Cats,
+				frame=tblr,
+				language=Rust
+			]{./code-snippets-rs/src/cats.rs}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			Impossible states can be encoded in the type system, which leads to compile time errors, instead of runtime checks.
+			\lstinputlisting[
+				linerange=14-17,
+				caption=Unphysical (zombie) Cat,
+				frame=tblr,
+				language=Rust
+			]{./code-snippets-rs/src/cats.rs}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Why Rust?}
+	\frametitle{Why Rust}
+	\framesubtitle{Type System}
+	\begin{figure}[ht]
+		\centering
+		\includegraphics[width=\textwidth]{./figures/real-cat.png}
+		\caption{Error when declaring an unrealistic cat}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Why Rust}
 	\framesubtitle{Safety}
 
-	Insert image of my IDE showing an error such as attempting to use a value after it is moved out of scope.
+	\begin{columns}
+		\begin{column}{0.4\textwidth}
+			\begin{itemize}
+                \item Result: Errors are values, i.e., no nidden control flow
+                \item Functions that can fail return Result and this must be explicitly handled.
+			\end{itemize}
+		\end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{itemize}
+                \item No manual memory management
+                \item Values are dropped once they go out of scope
+            \end{itemize}
+        \end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Why Rust?}
-	\framesubtitle{Ergonomics while remaining fast}
+	\frametitle{Why Rust}
+	\framesubtitle{Ergonomics}
 
-	Here I may include my rust implementation of project 1 and compare it to my C version in both ergonomics, safety, and speed.
+    High level abstractions that enable multithreading without the error-prone approach of pthreads in C.
 \end{frame}
 
 \begin{frame}
-	\frametitle{Why Rust?}
+	\frametitle{Why Rust}
 	\framesubtitle{Single threaded bsort}
 	\begin{columns}
 		\begin{column}{ 0.5\textwidth }
@@ -62,7 +103,7 @@
 				caption=Single threaded bsort,
 				frame=tblr,
 				language=Rust
-			]{./code-snippets-rs/src/project-1-example.rs}
+			]{./code-snippets-rs/src/project_1_example.rs}
 		\end{column}
 		\begin{column}{ 0.4\textwidth }
 			\begin{itemize}
@@ -75,7 +116,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Why Rust?}
+	\frametitle{Why Rust}
 	\framesubtitle{Concurrency is easy while avoiding race conditions}
 	\begin{columns}
 		\begin{column}{ 0.5\textwidth }
@@ -84,7 +125,7 @@
 				caption=Example of easy parallelization,
 				frame=tblr,
 				language=Rust
-			]{./code-snippets-rs/src/project-1-example.rs}
+			]{./code-snippets-rs/src/project_1_example.rs}
 		\end{column}
 		\begin{column}{ 0.4\textwidth }
 			\begin{itemize}
@@ -93,6 +134,21 @@
 			\end{itemize}
 		\end{column}
 	\end{columns}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[ht]
+        \centering
+		\includegraphics[width=\textwidth]{./figures/project-1-plot.png}
+        \caption{Preformacne results from bsort project. Note that the Rust reference sort is not plotted as it was under 1ms, compared to 8ms for the C qsort.}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why Rust}
+    \framesubtitle{Zero Cost Abstraction}
+
+    All these features are provided at compile time and are optimized away when compiling so that they do not affect performance at run time.
 \end{frame}
 
 \begin{frame}
@@ -223,7 +279,7 @@
 		\begin{column}{0.45\textwidth}
 			\lstinputlisting[
 				linerange=72-89,
-                firstnumber=24,
+				firstnumber=24,
 				basicstyle=\tiny,
 				% caption=,
 				frame=tblr,
@@ -247,20 +303,20 @@
 			]{../code/cpu/fractals/src/main.rs}
 		\end{column}
 		\begin{column}{0.3\textwidth}
-            \begin{itemize}
-                \item Fiarly similar to launching a kernel in C.
-                \item Must be used inside an \Verb|unsafe| block since the kernel itself is an unsafe function.
-            \end{itemize}
+			\begin{itemize}
+				\item Fiarly similar to launching a kernel in C.
+				\item Must be used inside an \Verb|unsafe| block since the kernel itself is an unsafe function.
+			\end{itemize}
 		\end{column}
 	\end{columns}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Output Image}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=\textwidth]{./figures/mandelbrot.png}
-    \end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{./figures/mandelbrot.png}
+	\end{figure}
 \end{frame}
 
 \begin{frame}
