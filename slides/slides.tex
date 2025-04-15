@@ -73,16 +73,16 @@
 	\begin{columns}
 		\begin{column}{0.4\textwidth}
 			\begin{itemize}
-                \item Result: Errors are values, i.e., no nidden control flow
-                \item Functions that can fail return Result and this must be explicitly handled.
+				\item Result: Errors are values, i.e., no nidden control flow
+				\item Functions that can fail return Result and this must be explicitly handled.
 			\end{itemize}
 		\end{column}
-        \begin{column}{0.4\textwidth}
-            \begin{itemize}
-                \item No manual memory management
-                \item Values are dropped once they go out of scope
-            \end{itemize}
-        \end{column}
+		\begin{column}{0.4\textwidth}
+			\begin{itemize}
+				\item No manual memory management
+				\item Values are dropped once they go out of scope
+			\end{itemize}
+		\end{column}
 	\end{columns}
 \end{frame}
 
@@ -90,7 +90,7 @@
 	\frametitle{Why Rust}
 	\framesubtitle{Ergonomics}
 
-    High level abstractions that enable multithreading without the error-prone approach of pthreads in C.
+	High level abstractions that enable multithreading without the error-prone approach of pthreads in C.
 \end{frame}
 
 \begin{frame}
@@ -137,18 +137,18 @@
 \end{frame}
 
 \begin{frame}
-    \begin{figure}[ht]
-        \centering
+	\begin{figure}[ht]
+		\centering
 		\includegraphics[width=\textwidth]{./figures/project-1-plot.png}
-        \caption{Preformacne results from bsort project. Note that the Rust reference sort is not plotted as it was under 1ms, compared to 8ms for the C qsort.}
-    \end{figure}
+		\caption{Preformacne results from bsort project. Note that the Rust reference sort is not plotted as it was under 1ms, compared to 8ms for the C qsort.}
+	\end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Why Rust}
-    \framesubtitle{Zero Cost Abstraction}
+	\frametitle{Why Rust}
+	\framesubtitle{Zero Cost Abstraction}
 
-    All these features are provided at compile time and are optimized away when compiling so that they do not affect performance at run time.
+	All these features are provided at compile time and are optimized away when compiling so that they do not affect performance at run time.
 \end{frame}
 
 \begin{frame}
@@ -187,27 +187,27 @@
 	\frametitle{Rust and CUDA}
 	\framesubtitle{Current options}
 
-	\begin{outline}[itemize]
-		\1 Rust GPU
-		\1 Rust CUDA
-	\end{outline}
-
-	rust-CUDA for targeting NVIDIA GPUs and their specific libraries
-	rust-gpu for vendor agnostic GPU programming
-
- 	Others in Rust ecosystem include: Vulkano, wgpu, Miniquad, Sierra, Glium, Ash, Erupt
-
-	Maybe mention other options for GPU programming in rust, like any rust support for ROCm, HIP, intel gaudi, or other.
+	\begin{itemize}
+		\item Rust GPU for vendor agnostic GPU programming
+		\item Rust CUDA for targeting NVIDIA GPUs and their specific libraries
+		\item Vulkano
+		\item wgpu
+		\item Miniquad
+		\item Sierra
+		\item Glium
+		\item Ash
+		\item Erupt
+	\end{itemize}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust and CUDA}
 	\framesubtitle{Description of how the Rust-CUDA crate works}
 
- 	\begin{itemize}
-  		\item \textbf{Purpose:} Enable GPU programming in Rust by writing CUDA kernels directly in Rust.
-      		\item Need the CUDA SDK, LLVM7.x, and approriate pathing.
-  	\end{itemize}
+	\begin{itemize}
+		\item \textbf{Purpose:} Enable GPU programming in Rust by writing CUDA kernels directly in Rust.
+		\item Need the CUDA SDK and LLVM7.x.
+	\end{itemize}
 \end{frame}
 
 \begin{frame}
