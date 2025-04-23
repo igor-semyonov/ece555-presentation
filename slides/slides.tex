@@ -158,7 +158,7 @@
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\begin{itemize}
-				\item Ownership Rules\cite[Ch04-01]{rust-book}
+				\item Ownership Rules\footnotemark
 				      \begin{itemize}
 					      \item Each value has an owner
 					      \item There can only be one owner at a time
@@ -168,7 +168,7 @@
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\begin{itemize}
-				\item Borrow Rules\cite[Ch04-02]{rust-book}
+				\item Borrow Rules\footnotemark
 				      \begin{itemize}
 					      \item At any given time, you can have either one mutable reference or any number of immutable references.
 					      \item References must always be valid.
@@ -181,6 +181,9 @@
 	C, and especially CUDA, style shared mutable memory access violates the ownership and borrow rules.
 
 	At this time, we therefore need to use unsafe Rust when writing and calling GPU kernels.
+
+	\footcitetext[Ch04-01]{rust-book}
+	\footcitetext[Ch04-02]{rust-book}
 \end{frame}
 
 \begin{frame}
@@ -221,9 +224,34 @@
 
 \begin{frame}
 	\frametitle{What is a compiler?}
-	\framesubtitle{}
+	\framesubtitle{Translation pipeline}
 
-	Description of problems when going straing from source code to machine code.
+    \begin{columns}[T]
+        \begin{column}{0.3\textwidth}
+            Front End
+            \begin{itemize}
+                \item Lexical analysis: source → tokens (identifiers, literals, operators)
+                \item Syntax \& semantic analysis: tokens → AST, type checking
+                \item Emit language independent IR
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            Optimization
+            \begin{itemize}
+                \item IR level passes: constant folding, dead code elimination, algebraic simplification
+                \item Advanced transforms: function inlining, loop unrolling, vectorization
+                \item Profile  or link time optimizations for extra performance
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.3\textwidth}
+Back End
+            \begin{itemize}
+                \item Lower optimized IR to machine instructions (instruction selection \& scheduling)
+                \item Register allocation, calling‐convention handling
+                \item Emit assembly or object code ready for linking
+            \end{itemize}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
@@ -246,6 +274,8 @@
 
 	How NVVM is used in Rust CUDA
 \end{frame}
+
+\section{Demo Implementation}
 
 \begin{frame}
 	\frametitle{Fractals}
@@ -354,21 +384,7 @@
 	\end{columns}
 \end{frame}
 
-% \begin{frame}%[t, allowframebreaks]
-%     \frametitle{
-%         References
-%     }
-%     % \nocite{thing-we-want-listed-even-though-it-was-never-cited}
-%     % \bibliographystyle{amsalpha}
-%     \bibliographystyle{apalike}
-%     % If you have more than one page of references, you want to tell beamer
-%     % to put the continuation section label from the second slide onwards
-%     \setbeamertemplate{frametitle continuation}[from second]
-%     % and kill the abominable icon
-%     \setbeamertemplate{bibliography item}{\Huge$\rightharpoonup$}
-%     % \bibliographystyle{siam}
-% \end{frame}
-\bibliographystyle{ieeetr}
-\bibliography{./refs}
+
+\printbibliography
 
 \end{document}

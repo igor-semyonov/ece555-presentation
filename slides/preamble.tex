@@ -1,5 +1,6 @@
-\usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage[T1]{fontenc}
+
 \usepackage{fix-cm}
 
 %\usetheme{Berkeley}
@@ -10,11 +11,11 @@
 \usepackage{fancyvrb}
 
 \logo{
-    \includegraphics[scale=0.1]{logo-gmu-ece.png }
+	\includegraphics[scale=0.1]{logo-gmu-ece.png }
 }
 
 \titlegraphic{
-    \includegraphics[scale=0.2]{./logo-gmu-ece.png}
+	\includegraphics[scale=0.2]{./logo-gmu-ece.png}
 }
 
 \usepackage{graphicx}
@@ -25,7 +26,17 @@
 \input{color.tex}
 
 %\usepackage{natbib}
-\usepackage{bibentry}
+% \usepackage{bibentry}
+
+\usepackage[english]{babel}% Recommended
+\usepackage{csquotes}% Recommended
+\usepackage[
+	style=authoryear
+]{biblatex}
+\addbibresource[]{./refs.bib}% Syntax for version >= 1.2
+% fix missing small caps
+\renewcommand\mkbibacro[1]{{\footnotesize\MakeUppercase{#1}}}
+
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule
 \usepackage{multirow}
@@ -34,8 +45,8 @@
 %page numbers in bottom right
 \setbeamertemplate{sidebar right}{}
 \setbeamertemplate{footline}{%
-\hfill\usebeamertemplate***{navigation symbols}
-\hspace{1cm}\insertframenumber{}/\inserttotalframenumber}
+	\hfill\usebeamertemplate***{navigation symbols}
+	\hspace{1cm}\insertframenumber{}/\inserttotalframenumber}
 
 % math
 \usepackage{amsmath,amsfonts,amssymb,mathrsfs,mathtools}
@@ -69,9 +80,9 @@
 
 \usepackage{outlines}
 %\usepackage[margin=1.0in]{geometry}
-\setbeamersize{text margin left=15mm,text margin right=15mm} 
+\setbeamersize{text margin left=15mm,text margin right=15mm}
 
-\input{macros}
+% \input{macros}
 
 % \usepackage{mdframed}
 % % \mdfdefinestyle{tablestyle}{linewidth=2pt}
