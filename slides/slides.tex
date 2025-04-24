@@ -26,14 +26,14 @@
 	\frametitle{Why not Just Use C?}
 	\framesubtitle{}
 
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-            \begin{itemize}
-                \item No safety
-                \item Skill issues, leading to lack of safety
-            \end{itemize}
-        \end{column}
-    \end{columns}
+	\begin{columns}
+		\begin{column}{0.4\textwidth}
+			\begin{itemize}
+				\item No safety
+				\item Skill issues, leading to lack of safety
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -240,6 +240,50 @@
 			\end{itemize}
 		\end{column}
 	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{What is a compiler?}
+	\framesubtitle{Translation pipeline}
+
+	\tikzstyle{stage} = [
+	rectangle,
+	minimum width=1cm,
+	minimum height=1cm,
+	text centered,
+	text width=1.5cm,
+	draw=blue
+	]
+	\tikzstyle{a} = [green, thick,->,>={Latex}]
+	\centering
+	\begin{tikzpicture}[node distance=0.2cm]
+		\tikzset{every node/.style={font=\small}}
+		\def \vspacing {-0.5cm}
+		\def \hspacing {3cm}
+
+		\draw node[stage](source){Source};
+		\draw (source.south) [a] -- ++ (0, \vspacing) node[stage,anchor=north](tokens){Tokens};
+		\draw (tokens.south) [a] -- ++ (0, \vspacing) node[stage, anchor=north](ast){AST};
+		\draw (ast.south) [a] -- ++ (0, \vspacing) node[stage, anchor=north](ir){IR};
+
+		\draw (source.east) ++(\hspacing, 0) node[stage, anchor=west](ir passes){IR Level Passes};
+		\draw (ir.east) -- ++(\hspacing / 2, 0) [a] |- (ir passes.west);
+		\draw (ir passes.south) [a] --++(0, \vspacing) node[stage, anchor=north](advanced transforms){Advanced Transforms};
+		\draw (advanced transforms.south) [a] --++(0, \vspacing) node[stage, anchor=north](lto){PGO \& LTO};
+
+		\draw (ir passes.east) ++(\hspacing, 0) node[stage, anchor=west](lower ir){Lower IR};
+		\draw (lto.east) -- ++(\hspacing / 2, 0) [a] |- (lower ir.west);
+		\draw (lower ir.south) [a] --++(0, \vspacing) node[stage, anchor=north](registers){Register allocation};
+		\draw (registers.south) [a] --++(0, \vspacing) node[stage, anchor=north](assembly){Machine Code};
+
+		\node [inner sep=8pt, fit=(source) (tokens) (ast) (ir), draw, dotted, yellow](frontend){};
+		\node [inner sep=8pt, fit=(ir passes) (advanced transforms) (lto), draw, dotted, yellow](optimization){};
+		\node [inner sep=8pt, fit=(lower ir) (registers) (assembly), draw, dotted, yellow](backend){};
+
+		\draw (frontend.north) node[anchor=south]{Front End};
+		\draw (optimization.north) node[anchor=south]{Optimization};
+		\draw (backend.north) node[anchor=south]{Back End};
+	\end{tikzpicture}
 \end{frame}
 
 \begin{frame}
@@ -450,8 +494,8 @@
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\begin{table}[ht]
-                \centering
-                \caption{Timing results for several approaches of producing the fractals}
+				\centering
+				\caption{Timing results for several approaches of producing the fractals}
 				\begin{tabular}{l r}
 					\toprule
 					Method                & Time (ms) \\
