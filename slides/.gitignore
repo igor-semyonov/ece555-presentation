@@ -2,3 +2,5 @@
 *.blg
 *.bcf
 *.run.xml
+slides.b*
+slides.s*
