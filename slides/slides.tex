@@ -26,9 +26,14 @@
 	\frametitle{Why not Just Use C?}
 	\framesubtitle{}
 
-	It should not be used for production.
-
-	See \url{https://veresov.pro/cmustdie/}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{itemize}
+                \item No safety
+                \item Skill issues, leading to lack of safety
+            \end{itemize}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
@@ -182,12 +187,12 @@
 
 	At this time, we therefore need to use unsafe Rust when writing and calling GPU kernels.
 
-	\footcitetext[Ch04-01]{rust-book}
+	\footnotetext{ [Ch04-01]{rust-book}}
 	\footcitetext[Ch04-02]{rust-book}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Rust and CUDA}
+	\frametitle{Rust and GPU Programming}
 	\framesubtitle{Current options}
 
 	\begin{itemize}
@@ -201,25 +206,8 @@
 		\item Ash
 		\item Erupt
 	\end{itemize}
-\end{frame}
 
-\begin{frame}
-	\frametitle{Rust and CUDA}
-	\framesubtitle{Description of how the Rust-CUDA crate works}
-
-	\begin{itemize}
-		\item \textbf{Purpose:} Enable GPU programming in Rust by writing CUDA kernels directly in Rust.
-		\item Need the CUDA SDK and LLVM7.x.
-	\end{itemize}
-\end{frame}
-
-\begin{frame}
-	\frametitle{Rust and CUDA}
-	\framesubtitle{Focusing on Rust CUDA}
-
-	Currently being rebooted and is in active development.
-
-	Uses nvidia's nvvm tool which is built on LLVM 7.
+	We focused on the Rust CUDA crate, which is currently in active development.
 \end{frame}
 
 \begin{frame}
@@ -258,21 +246,127 @@
 	\frametitle{The problem LLVM solves}
 	\framesubtitle{front ends \& back ends}
 
-	Description of LLVM and it's intermediate representation and how this has enabled much easier language development.
+	\begin{columns}[T]
+		\begin{column}{0.25\textwidth}
+			Fragmented Toolchains
+			\begin{itemize}
+				\item Historically each language writes its own optimizer \& code generator
+				\item Reinventing the same analyses over and over
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.25\textwidth}
+			Reusable IR
+			\begin{itemize}
+				\item SSA based intermediate form shared by many languages
+				\item Single place to build and maintain optimizations
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.25\textwidth}
+			Multiple back ends
+			\begin{itemize}
+				\item Add support for x86, ARM, RISC V, NVIDIA GPUs, … by writing one backend
+				\item All front ends instantly benefit from each new target
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.25\textwidth}
+			Rapid language support
+			\begin{itemize}
+				\item New languages (Rust, Swift, Julia, etc.) get mature codegen “for free”
+				\item Performance improvements flow to every user automatically
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
 	\frametitle{NVVM}
-	\framesubtitle{}
+	\framesubtitle{NVIDIA’s LLVM based GPU IR}
 
-	How NVVM works
+	\begin{columns}[T]
+		\begin{column}{0.4\textwidth}
+			What is NVVM IR? \footnotemark
+			\begin{itemize}
+				\item A dialect of LLVM IR extended for CUDA style GPU programming
+				\item Adds memory space qualifiers (global, shared, constant)
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			Metadata \& intrinsics
+			\begin{itemize}
+				\item Thread/block IDs and barriers (llvm.nvvm.barrier0)
+				\item Marks kernel entry points and resource usage requirements
+			\end{itemize}
+		\end{column}
+	\end{columns}
+	\footcitetext{supercomputing}
+\end{frame}
+
+\begin{frame}
+	\frametitle{NVVM}
+	\framesubtitle{NVIDIA’s LLVM based GPU IR (continued)}
+
+	\begin{columns}[T]
+		\begin{column}{0.4\textwidth}
+			Toolchain flow
+			\begin{enumerate}
+				\item Front end emits .nvvm.bc bitcode file
+				\item NVVM compiler (libnvvm) lowers IR to PTX assembly
+				\item PTX → CUBIN or JIT compiled by CUDA driver at runtime
+			\end{enumerate}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			Why use NVVM?
+			\begin{itemize}
+				\item Reuse LLVM’s optimizer on device code
+				\item Keep host and GPU code in one common IR for easier shared analysis
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
 	\frametitle{Rust CUDA and NVVM}
-	\framesubtitle{}
+	\framesubtitle{How the pieces fit}
 
-	How NVVM is used in Rust CUDA
+	\begin{columns}[T]
+		\begin{column}{0.4\textwidth}
+			Cargo \& rustc target \footnotemark
+			\begin{itemize}
+				\item Compile kernels with --target=nvptx64-nvidia-cuda
+				\item Separate build profiles for host (x86\_64) and device (PTX)
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			LLVM IR generation
+			\begin{itemize}
+				\item Annotate GPU functions with \texttt{\#[kernel]} or \texttt{extern "ptx-kernel"}
+				\item rustc emits NVVM compatible IR carrying thread/block metadata
+			\end{itemize}
+		\end{column}
+	\end{columns}
+	\footcitetext{rust-for-gpu}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Rust CUDA and NVVM}
+	\framesubtitle{How the pieces fit (continued)}
+
+	\begin{columns}[T]
+		\begin{column}{0.4\textwidth}
+			PTX emission
+			\begin{itemize}
+				\item Build script (\texttt{build.rs}) or \Verb|nvptx-link| plugin calls into \Verb|libnvvm|
+				\item Produces \Verb|.ptx| files you bundle into your binary or load at runtime
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			Runtime loading \& launch
+			\begin{itemize}
+				\item Use the \Verb|rustacuda| crate (or raw CUDA Driver API) to load modules
+				\item Launch kernels inside \Verb|unsafe| blocks, mirroring C/CUDA calls
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \section{Demo Implementation}
@@ -351,39 +445,37 @@
 
 \begin{frame}
 	\frametitle{Fractals}
-	\framesubtitle{Timing Results for 1 frame on CPU and GPU}
-
-	I will add the single, frame timing results here
-\end{frame}
-
-\begin{frame}
-	\frametitle{Fractals}
-	\framesubtitle{Live Demo}
-
-	I plan to be sharing my screen for the presentation and will switch to a live demo here.
-\end{frame}
-
-\begin{frame}
-	\frametitle{This is a slide}
-	\framesubtitle{With a subtitle}
+	% \framesubtitle{Timing Results for 1 frame on CPU and GPU}
 
 	\begin{columns}
-		\begin{column}{0.6\textwidth}
-			This is some text in a column. Could be a figure instead.
-		\end{column}
-		\begin{column}{0.4\textwidth}
-			\begin{outline}[itemize]
-				\1
-				This is a list
-				\1
-				It is an itemized one
-				\1
-				Hence the bullets
-			\end{outline}
+		\begin{column}{0.5\textwidth}
+			\begin{table}[ht]
+                \centering
+                \caption{Timing results for several approaches of producing the fractals}
+				\begin{tabular}{l r}
+					\toprule
+					Method                & Time (ms) \\
+					\midrule
+					CPU create point grid & 175.357   \\
+					GPU using CPU points  & 0.552     \\
+					CPU using rayon       & 143.647   \\
+					\midrule
+					GPU f32               & 0.453     \\
+					GPU f64               & 12.272    \\
+					\bottomrule
+				\end{tabular}
+			\end{table}
 		\end{column}
 	\end{columns}
 \end{frame}
 
+\begin{frame}
+	\frametitle{Fractals}
+	% \framesubtitle{Live Demo}
+
+	\centering
+	\huge Live Demo
+\end{frame}
 
 \printbibliography
 
