@@ -226,37 +226,37 @@
 	\frametitle{What is a compiler?}
 	\framesubtitle{Translation pipeline}
 
-    \begin{columns}[T]
-        \begin{column}{0.3\textwidth}
-            Front End
-            \begin{itemize}
-                \item Lexical analysis: source → tokens (identifiers, literals, operators)
-                \item Syntax \& semantic analysis: tokens → AST, type checking
-                \item Emit language independent IR
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.4\textwidth}
-            Optimization
-            \begin{itemize}
-                \item IR level passes: constant folding, dead code elimination, algebraic simplification
-                \item Advanced transforms: function inlining, loop unrolling, vectorization
-                \item Profile  or link time optimizations for extra performance
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.3\textwidth}
-Back End
-            \begin{itemize}
-                \item Lower optimized IR to machine instructions (instruction selection \& scheduling)
-                \item Register allocation, calling‐convention handling
-                \item Emit assembly or object code ready for linking
-            \end{itemize}
-        \end{column}
-    \end{columns}
+	\begin{columns}[T]
+		\begin{column}{0.3\textwidth}
+			Front End
+			\begin{itemize}
+				\item Lexical analysis: source → tokens (identifiers, literals, operators)
+				\item Syntax \& semantic analysis: tokens → AST, type checking
+				\item Emit language independent IR
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			Optimization
+			\begin{itemize}
+				\item IR level passes: constant folding, dead code elimination, algebraic simplification
+				\item Advanced transforms: function inlining, loop unrolling, vectorization
+				\item Profile  or link time optimizations for extra performance
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.3\textwidth}
+			Back End
+			\begin{itemize}
+				\item Lower optimized IR to machine instructions (instruction selection \& scheduling)
+				\item Register allocation, calling‐convention handling
+				\item Emit assembly or object code ready for linking
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
 	\frametitle{The problem LLVM solves}
-	\framesubtitle{}
+	\framesubtitle{front ends \& back ends}
 
 	Description of LLVM and it's intermediate representation and how this has enabled much easier language development.
 \end{frame}
