@@ -38,8 +38,20 @@
 % fix missing small caps
 \renewcommand\mkbibacro[1]{{\footnotesize\MakeUppercase{#1}}}
 
+
+% Better footnote handling
+\newcounter{footnoteInText}
+\newcounter{footnoteInNote}
 \usepackage{perpage}
-\MakePerPage{footnote}
+\MakePerPage{footnoteInNote}
+\MakePerPage{footnoteInText}
+
+\newcommand{\fnmark}{\stepcounter{footnoteInText}\setcounter{footnote}{\value{footnoteInText}}\addtocounter{footnote}{-1}\footnotemark}
+\newcommand{\fntext}[1]{\stepcounter{footnoteInNote}\setcounter{footnote}{\value{footnoteInNote}}\footnotetext{#1}}
+% \newcommand{\fnresetcounters}{
+%     \setcounter{footnoteInText}{0}
+%     \setcounter{footnoteInNote}{0}
+% }
 
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule

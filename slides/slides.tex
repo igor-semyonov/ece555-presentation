@@ -6,11 +6,10 @@
 \author{
 	% \tiny
 	Igor Semyonov
-	\and Jordan Carnes
 	\and Robert Laverne Griffin
 }
 \institute{
-    George Macon University, Department of Electrical and Computer Engineering
+    George Mason University, Department of Electrical and Computer Engineering
 }
 
 \input{preamble.tex}
@@ -27,10 +26,13 @@
 	\framesubtitle{}
 
 	\begin{columns}
-		\begin{column}{0.4\textwidth}
+		\begin{column}{0.6\textwidth}
 			\begin{itemize}
-				\item No safety
+				\item No memory safety
+				\item Fragmented support across platforms
+				\item Fragmented, or simply missing, tooling
 				\item Skill issues, leading to lack of safety
+				\item Because writing Rust makes me happy
 			\end{itemize}
 		\end{column}
 	\end{columns}
@@ -163,7 +165,7 @@
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\begin{itemize}
-				\item Ownership Rules\footnotemark
+				\item Ownership Rules\fnmark
 				      \begin{itemize}
 					      \item Each value has an owner
 					      \item There can only be one owner at a time
@@ -173,7 +175,7 @@
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\begin{itemize}
-				\item Borrow Rules\footnotemark
+				\item Borrow Rules\fnmark
 				      \begin{itemize}
 					      \item At any given time, you can have either one mutable reference or any number of immutable references.
 					      \item References must always be valid.
@@ -187,8 +189,8 @@
 
 	At this time, we therefore need to use unsafe Rust when writing and calling GPU kernels.
 
-	\footnotetext{ [Ch04-01]{rust-book}}
-	\footcitetext[Ch04-02]{rust-book}
+	\fntext{\cite[Ch04-01]{rust-book}}
+	\fntext{\cite[Ch04-02]{rust-book}}
 \end{frame}
 
 \begin{frame}
@@ -328,7 +330,7 @@
 
 	\begin{columns}[T]
 		\begin{column}{0.4\textwidth}
-			What is NVVM IR? \footnotemark
+			What is NVVM IR? \fnmark
 			\begin{itemize}
 				\item A dialect of LLVM IR extended for CUDA style GPU programming
 				\item Adds memory space qualifiers (global, shared, constant)
@@ -342,7 +344,7 @@
 			\end{itemize}
 		\end{column}
 	\end{columns}
-	\footcitetext{supercomputing}
+	\fntext{ \cite{supercomputing} }
 \end{frame}
 
 \begin{frame}
@@ -374,7 +376,7 @@
 
 	\begin{columns}[T]
 		\begin{column}{0.4\textwidth}
-			Cargo \& rustc target \footnotemark
+			Cargo \& rustc target \fnmark
 			\begin{itemize}
 				\item Compile kernels with --target=nvptx64-nvidia-cuda
 				\item Separate build profiles for host (x86\_64) and device (PTX)
@@ -388,7 +390,7 @@
 			\end{itemize}
 		\end{column}
 	\end{columns}
-	\footcitetext{rust-for-gpu}
+	\fntext{\cite{rust-for-gpu}}
 \end{frame}
 
 \begin{frame}
@@ -483,7 +485,8 @@
 	\frametitle{Output Image}
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=\textwidth]{./figures/mandelbrot.png}
+		\includegraphics[width=0.95\textwidth]{./figures/mandelbrot.png}
+        \caption{Mandelbrot set image of size 8192x4096}
 	\end{figure}
 \end{frame}
 
@@ -492,25 +495,30 @@
 	% \framesubtitle{Timing Results for 1 frame on CPU and GPU}
 
 	\begin{columns}
-		\begin{column}{0.5\textwidth}
+		\begin{column}{0.7\textwidth}
 			\begin{table}[ht]
 				\centering
 				\caption{Timing results for several approaches of producing the fractals}
-				\begin{tabular}{l r}
+				\begin{tabular}{l r r}
 					\toprule
-					Method                & Time (ms) \\
+					                      & \multicolumn{2}{c}{Time (ms)}                  \\
+					\cmidrule(lr){2-3}
+					Method                & Machine\fnmark                & Machine\fnmark \\
 					\midrule
-					CPU create point grid & 175.357   \\
-					GPU using CPU points  & 0.552     \\
-					CPU using rayon       & 143.647   \\
+					CPU create point grid & 175.357                       & 62.11          \\
+					GPU using CPU points  & 0.552                         & 5.23           \\
+					CPU using rayon       & 143.647                       & 499.39         \\
 					\midrule
-					GPU f32               & 0.453     \\
-					GPU f64               & 12.272    \\
+					GPU f32               & 0.453                         & 3.48           \\
+					GPU f64               & 12.272                        & 101.42         \\
 					\bottomrule
 				\end{tabular}
 			\end{table}
 		\end{column}
 	\end{columns}
+
+	\fntext{12C/24T 3900X // RTX 4090}
+	\fntext{4C/8T 7700K // RTX 2070 Super}
 \end{frame}
 
 \begin{frame}
@@ -519,6 +527,17 @@
 
 	\centering
 	\huge Live Demo
+\end{frame}
+
+\begin{frame}
+	\frametitle{Repository}
+	% \framesubtitle{Live Demo}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.3\textwidth]{./figures/qr-code.png}
+        \url{https://github.com/igor-semyonov/ece555-presentation}
+	\end{figure}
 \end{frame}
 
 \printbibliography
