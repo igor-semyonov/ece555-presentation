@@ -1,5 +1,7 @@
 Presentation for ECE 555
 
+Authors: Igor Semyonov and Robert Laverne Griffin
+
 # Notes
 
 I have managed to get the add example in the Rust_CUDA crate working.
